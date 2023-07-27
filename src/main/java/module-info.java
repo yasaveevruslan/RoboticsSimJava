@@ -6,7 +6,10 @@ module com.example.demo2 {
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
     requires com.jfoenix;
+    requires opencv;
 
     opens com.example.demo2 to javafx.fxml;
     exports com.example.demo2;
+    exports com.example.demo2.training;
+    opens com.example.demo2.training to javafx.fxml;
 }
