@@ -6,15 +6,20 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +34,8 @@ public class MainController {
     public JFXButton buttonONandOFFSmall, buttonImageContoursSmall, buttonSmartBoardSmall;
     @FXML
     public Button buttonReset, buttonStart, buttonStop;
+    public ScrollPane Scroll;
+    public StackPane StackActivityPanel;
 
     private boolean buttonSmartClicked = false;
     private boolean buttonImageClicked = false;
@@ -44,9 +51,13 @@ public class MainController {
 
     @FXML
     private void initialize() {
+        if(!(buttonImageClicked && buttonSmartClicked)){
+            Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            Scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        }
+
         buttonONandOFF.setOnAction(actionEvent -> hidePanel(true));
         buttonONandOFFSmall.setOnAction(actionEvent -> hidePanel(false));
-
 
         buttonSmartBoard.setOnAction(actionEvent -> actionWithSmartBoard());
         buttonSmartBoardSmall.setOnAction(actionEvent -> actionWithSmartBoard());
@@ -60,31 +71,34 @@ public class MainController {
         Image image = new Image(imageUrl);
         imageArea.setImage(image);
     }
+
     @FXML
     private void hidePanel(Boolean notSmallButton) {
-        if (ActivityPanel.getOpacity() == 1.0) {
-            ActivityPanel.setOpacity(0.0);
+        if (Scroll.getOpacity() == 0.88) {
+            Scroll.setOpacity(0.0);
         } else if (Boolean.FALSE.equals(notSmallButton)) {
-            ActivityPanel.setOpacity(1.0);
+            Scroll.setOpacity(0.88);
         }
     }
+
     @FXML
     private void actionWithSmartBoard(){
         if(buttonImageClicked){
             buttonImageClicked = false;
+
+            StackActivityPanel.setPrefSize(407, 736);
+
         }
 
         if (!buttonSmartClicked) {
             AnchorPane newPanel = new AnchorPane();
 
             newPanel.setPrefSize(ActivityPanel.getWidth(), ActivityPanel.getHeight());
-            newPanel.setBlendMode(BlendMode.SRC_ATOP);
-
             AnchorPane.setBottomAnchor(newPanel, 0.0);
             AnchorPane.setTopAnchor(newPanel, 0.0);
             AnchorPane.setRightAnchor(newPanel, 0.0);
 
-            createBooleanView("posA");
+            createTextView("posA");
             createBooleanView("posB");
             createBooleanView("posC");
             createBooleanView("posD");
@@ -100,24 +114,24 @@ public class MainController {
 
             addViewsOnPanel(newPanel);
 
-
             buttonSmartClicked = true;
 
             if(originalPanel == null){
                 originalPanel = new AnchorPane();
                 originalPanel.setStyle(ActivityPanel.getStyle());
-                originalPanel.setBlendMode(BlendMode.SRC_ATOP);
-
                 originalPanel.setPrefSize(ActivityPanel.getWidth(), ActivityPanel.getHeight());
                 originalPanel.getChildren().addAll(ActivityPanel.getChildren());
             }
 
             ActivityPanel.getChildren().clear();
             ActivityPanel.getChildren().add(newPanel);
+            Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
         }else{
             if (originalPanel != null) {
                 ActivityPanel.getChildren().clear();
                 ActivityPanel.getChildren().add(originalPanel);
+                Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
                 buttonSmartClicked = false;
                 numGroup = 0;
@@ -127,34 +141,49 @@ public class MainController {
         }
     }
 
-    private LogicBorders borders = new LogicBorders();
 
 
     @FXML
     private void actionWithImageContours(){
+        LogicBorders borders = new LogicBorders();
+        String text = matToImage(borders.showFrameContours(borders.calculateBorders(290,290)));
+        ImageView img = new ImageView();
+
         if(buttonSmartClicked){
+
+            Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             buttonSmartClicked = false;
             numGroup = 0;
             initY = 0;
             views.clear();
         }
         if (!buttonImageClicked) {
+            Scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
             AnchorPane newPanel = new AnchorPane();
-            newPanel.setStyle("-fx-background-color: #E2445C");
-            newPanel.setBlendMode(BlendMode.SRC_ATOP);
+
             newPanel.setPrefSize(ActivityPanel.getWidth(), ActivityPanel.getHeight());
             AnchorPane.setBottomAnchor(newPanel, 0.0);
             AnchorPane.setTopAnchor(newPanel, 0.0);
             AnchorPane.setRightAnchor(newPanel, 0.0);
+            newPanel.getChildren().clear();
 
-            borders.calculateBorders(290,290);
+            Image image = new Image(text);
+            img.setImage(image);
+            img.setBlendMode(BlendMode.DIFFERENCE);
+            img.setFitWidth(600);
+            img.setFitHeight(400);
+
+            AnchorPane.setTopAnchor(img, 50.0);
+            AnchorPane.setLeftAnchor(img, 50.0);
+            AnchorPane.setRightAnchor(img, 140.0);
+            newPanel.getChildren().add(img);
             buttonImageClicked = true;
+            Scroll.setOnKeyPressed(this::handleKeyPressed);
 
             if(originalPanel == null){
                 originalPanel = new AnchorPane();
                 originalPanel.setStyle(ActivityPanel.getStyle());
-                originalPanel.setBlendMode(BlendMode.SRC_ATOP);
-
                 originalPanel.setPrefSize(ActivityPanel.getWidth(), ActivityPanel.getHeight());
                 originalPanel.getChildren().addAll(ActivityPanel.getChildren());
             }
@@ -163,7 +192,13 @@ public class MainController {
             ActivityPanel.getChildren().add(newPanel);
         }else{
             if (originalPanel != null) {
+
+                String newText = matToImage(borders.showFrameContours(borders.calculateBorders(290, 290)));
+                Image newImage = new Image(newText);
+                img.setImage(newImage);
+
                 ActivityPanel.getChildren().clear();
+                StackActivityPanel.setPrefSize(407, 736);
                 ActivityPanel.getChildren().add(originalPanel);
 
                 buttonImageClicked = false;
@@ -242,6 +277,24 @@ public class MainController {
     private void addViewsOnPanel(AnchorPane pane){
         for (Group view : views) {
             pane.getChildren().addAll(view);
+        }
+    }
+
+    private String matToImage(Mat mat) {
+        String url ="C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\Image\\im.png";
+        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
+        Imgcodecs.imwrite(url, mat);
+        return url;
+
+    }
+
+    private void handleKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.I) {
+            double currentWidth = StackActivityPanel.getPrefWidth() + 100;
+            StackActivityPanel.setPrefWidth(currentWidth);
+        }else if(event.getCode() == KeyCode.K){
+            double currentWidth = StackActivityPanel.getPrefWidth() - 100;
+            StackActivityPanel.setPrefWidth(currentWidth);
         }
     }
 

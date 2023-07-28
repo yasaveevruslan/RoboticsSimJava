@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
@@ -9,8 +10,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo2.training.MainController">
     <BorderPane style="-fx-background-color: #2E2E2E;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <bottom>
@@ -49,34 +48,36 @@
             </ToolBar>
         </bottom>
         <left>
-            <ImageView fitHeight="500.0" fitWidth="998.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_CENTER" fx:id="imageArea">
+            <ImageView fx:id="imageArea" fitHeight="500.0" fitWidth="998.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="TOP_CENTER">
                 <BorderPane.margin>
                     <Insets left="45.0" top="70.0" />
                 </BorderPane.margin>
             </ImageView>
         </left>
     </BorderPane>
-    <StackPane prefHeight="736.0" prefWidth="407.0" AnchorPane.bottomAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <AnchorPane fx:id="ActivityPanel" blendMode="SRC_ATOP" prefHeight="408.0" prefWidth="407.0" style="-fx-background-color: #F1F1F1F1;">
+    <StackPane fx:id="StackActivityPanel" prefHeight="736.0" prefWidth="407.0" AnchorPane.bottomAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <ScrollPane fx:id="Scroll" opacity="0.88">
+            <AnchorPane fx:id="ActivityPanel" prefHeight="408.0" prefWidth="407.0" style="-fx-background-color: #F1F1F1F1;">
 
-            <JFXButton fx:id="buttonSmartBoard" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="181.0" layoutY="128.0" prefHeight="99.0" prefWidth="406.0" text=" SmartBoard">
-                <font>
-                    <Font name="Arial Bold" size="18.0" />
-                </font>
-            </JFXButton>
-            <JFXButton fx:id="buttonImageContours" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="149.0" layoutY="227.0" prefHeight="99.0" prefWidth="406.0" text=" ImageContours">
-                <font>
-                    <Font name="Arial Bold" size="18.0" />
-                </font>
-            </JFXButton>
+                <JFXButton fx:id="buttonSmartBoard" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="181.0" layoutY="128.0" prefHeight="99.0" prefWidth="406.0" text=" SmartBoard">
+                    <font>
+                        <Font name="Arial Bold" size="18.0" />
+                    </font>
+                </JFXButton>
+                <JFXButton fx:id="buttonImageContours" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="149.0" layoutY="227.0" prefHeight="99.0" prefWidth="406.0" text=" ImageContours">
+                    <font>
+                        <Font name="Arial Bold" size="18.0" />
+                    </font>
+                </JFXButton>
 
-            <JFXButton fx:id="buttonONandOFF" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="224.0" layoutY="326.0" prefHeight="99.0" prefWidth="406.0" text=" ON/OFF" AnchorPane.topAnchor="326.0">
-                <font>
-                    <Font name="Arial Bold" size="18.0" />
-                </font>
-            </JFXButton>
+                <JFXButton fx:id="buttonONandOFF" alignment="BASELINE_LEFT" contentDisplay="RIGHT" graphicTextGap="224.0" layoutY="326.0" prefHeight="99.0" prefWidth="406.0" text=" ON/OFF" AnchorPane.topAnchor="326.0">
+                    <font>
+                        <Font name="Arial Bold" size="18.0" />
+                    </font>
+                </JFXButton>
 
-        </AnchorPane>
+            </AnchorPane>
+        </ScrollPane>
     </StackPane>
     <StackPane layoutX="1083.0" prefHeight="735.0" prefWidth="117.0" AnchorPane.bottomAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane fx:id="Menu" nodeOrientation="RIGHT_TO_LEFT" prefHeight="736.0" prefWidth="103.0" style="-fx-background-color: #c8c8c8;">
@@ -85,17 +86,17 @@
             </effect>
             <JFXButton fx:id="buttonSmartBoardSmall" contentDisplay="CENTER" layoutY="128.0" prefHeight="99.0" prefWidth="118.0">
                 <graphic>
-                    <FontAwesomeIconView glyphName="EDIT" size="3em"/>
+                    <FontAwesomeIconView glyphName="EDIT" size="3em" />
                 </graphic>
             </JFXButton>
             <JFXButton fx:id="buttonImageContoursSmall" contentDisplay="CENTER" graphicTextGap="0.0" layoutY="227.0" prefHeight="99.0" prefWidth="118.0">
                 <graphic>
-                    <FontAwesomeIconView glyphName="WINDOW_MAXIMIZE" size="3em"/>
+                    <FontAwesomeIconView glyphName="WINDOW_MAXIMIZE" size="3em" />
                 </graphic>
             </JFXButton>
             <JFXButton fx:id="buttonONandOFFSmall" alignment="CENTER" contentDisplay="CENTER" layoutY="326.0" prefHeight="99.0" prefWidth="118.0" AnchorPane.topAnchor="326.0">
                 <graphic>
-                    <FontAwesomeIconView glyphName="POWER_OFF" size="3em"  />
+                    <FontAwesomeIconView glyphName="POWER_OFF" size="3em" />
                 </graphic>
             </JFXButton>
         </AnchorPane>

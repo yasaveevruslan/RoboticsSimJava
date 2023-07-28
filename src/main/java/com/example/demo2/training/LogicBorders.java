@@ -1,9 +1,7 @@
 package com.example.demo2.training;
 
-import com.example.demo2.StartApplication;
 import org.opencv.core.*;
 import org.opencv.core.Point;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
@@ -187,7 +185,7 @@ public class LogicBorders {
 
     }
 
-    public void calculateBorders(int posX, int posY){
+    public List<MatOfPoint> calculateBorders(int posX, int posY){
 
         double distanceUp = 0.0;
         double distanceDown = 0.0;
@@ -254,16 +252,17 @@ public class LogicBorders {
                         nearestContours.add(contour);
                     }
                 }
-                showFrameContours(nearestContours);
             }
+//                    Elements.disUp = distanceUp;
+//        Elements.disDown = distanceDown;
+//        Elements.disRight = distanceRight;
+//        Elements.disLeft = distanceLeft;
+            return nearestContours;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-//        Elements.disUp = distanceUp;
-//        Elements.disDown = distanceDown;
-//        Elements.disRight = distanceRight;
-//        Elements.disLeft = distanceLeft;
+        return Collections.emptyList();
     }
 
 
@@ -271,7 +270,6 @@ public class LogicBorders {
 
         try{
             if (sourceImage.empty()) {
-//                System.err.println("Не удалось загрузить изображение.");
                 return Collections.emptyList();
             } else {
                 //Обработка самого изображения
@@ -289,15 +287,14 @@ public class LogicBorders {
         }
     }
 
-    private void showFrameContours(List<MatOfPoint> nearestContours){
+    public Mat showFrameContours(List<MatOfPoint> nearestContours){
         Mat windowBoard = Imgcodecs.imread(PATH_AREA);
 
         // Отрисовка контуров подходящих по условию
-        Scalar contourColor = new Scalar(0, 0, 255);
-        Imgproc.drawContours(windowBoard, nearestContours, -1, contourColor, 1);
+        Scalar contourColor = new Scalar(255, 0, 255);
+        Imgproc.drawContours(windowBoard, nearestContours, -1, contourColor, 4);
 
-//        HighGui.imshow("Ближайшие контуры", windowBoard);
-//        HighGui.waitKey(1);
+        return windowBoard;
 
     }
 
