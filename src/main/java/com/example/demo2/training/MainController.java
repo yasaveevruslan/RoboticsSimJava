@@ -18,13 +18,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
+import de.jensd.fx.glyphs.fontawesome.*;
 
 public class MainController {
     @FXML
@@ -50,7 +51,8 @@ public class MainController {
     private int initY = 0;
     private int numGroup = 0;
     private final Font font = new Font("Arial", 16);
-
+    private String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
+    private String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
     private List<Group> views = new ArrayList<>();
 
 
@@ -86,19 +88,18 @@ public class MainController {
     }
 
     private void setLightMode(){
-        String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
         parent.getStylesheets().remove(darkModeCss);
-        String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
-
         parent.getStylesheets().add(ligModeCss);
+        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
+
+        iconView.setGlyphName("MOON_ALT");
+
     }
     private void setDarkMode(){
-        String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
-        String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
         parent.getStylesheets().remove(ligModeCss);
-
         parent.getStylesheets().add(darkModeCss);
-
+        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
+        iconView.setGlyphName("SUN_ALT");
     }
     @FXML
     public void setImageUrl(URL imageUrl) {
@@ -241,7 +242,7 @@ public class MainController {
         Rectangle rectangle = new Rectangle(120,100);
         rectangle.setArcHeight(5);
         rectangle.setArcWidth(5);
-        rectangle.setFill(Color.rgb(146, 195, 255));
+        rectangle.setFill(Color.rgb(182, 163, 155));
         rectangle.setStroke(Color.BLACK);
 
         TextArea textArea = new TextArea();
@@ -256,7 +257,7 @@ public class MainController {
         label.setAlignment(Pos.CENTER);
         label.setPrefSize(120, 20);
         label.setFont(font);
-
+        label.setFont(Font.font(font.getFamily(), FontWeight.BOLD, font.getSize()));
         group.getChildren().addAll(rectangle, textArea, label);
         setLayoutForGroupOnSmartBoard(group);
     }
@@ -267,15 +268,16 @@ public class MainController {
         Rectangle rectangle = new Rectangle(120, 100);
         rectangle.setArcHeight(5);
         rectangle.setArcWidth(5);
-        rectangle.setFill(Color.rgb(146, 195, 255));
+        rectangle.setFill(Color.rgb(182, 163, 155));
         rectangle.setStroke(Color.BLACK);
 
         Label label = new Label(nameLabel);
         label.setAlignment(Pos.CENTER);
         label.setPrefSize(120, 20);
         label.setFont(font);
-
+        label.setFont(Font.font(font.getFamily(), FontWeight.BOLD, font.getSize()));
         Rectangle rectangle1 = new Rectangle(120, 67);
+
         rectangle1.setArcHeight(5);
         rectangle1.setArcWidth(5);
         rectangle1.setFill(Color.rgb(35, 255, 31));
@@ -318,7 +320,7 @@ public class MainController {
     }
 
     private void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.I) {
+        if (event.getCode() == KeyCode.I && StackActivityPanel.getWidth()<=1000) {
             double currentWidth = StackActivityPanel.getPrefWidth() + 100;
             StackActivityPanel.setPrefWidth(currentWidth);
         }else if(event.getCode() == KeyCode.K){

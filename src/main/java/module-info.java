@@ -7,6 +7,7 @@ module com.example.demo2 {
     requires com.almasb.fxgl.all;
     requires com.jfoenix;
     requires opencv;
+    requires de.jensd.fx.glyphs.fontawesome;
 
     opens com.example.demo2 to javafx.fxml;
     exports com.example.demo2;

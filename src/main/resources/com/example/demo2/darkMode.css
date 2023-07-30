@@ -4,7 +4,19 @@
 .secondary-color{
     -fx-background-color: #535353;
 }
+.third-color{
+    -fx-background-color: #6d6d6d;
+
+}
+.fourth-color{
+    -fx-background-color: #474747;
+}
 .round-color{
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #6e6e6e;
     -fx-background-radius: 800;
+}
+.text-color {
+    -fx-text-fill: white;
+    -fx-font-family: "Leelawadee Bold";
+    -fx-font-size: 23;
 }

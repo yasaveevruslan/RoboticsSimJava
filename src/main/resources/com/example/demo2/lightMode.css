@@ -1,10 +1,23 @@
 .primary-color{
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #a5a5a5;
 }
 .secondary-color{
     -fx-background-color: #c8c8c8;
 }
+.third-color{
+    -fx-background-color: #FFFFFF;
+
+}
+.fourth-color{
+    -fx-background-color: #f2f2f2;
+}
+
 .round-color{
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 800;
+}
+.text-color {
+    -fx-text-fill: black;
+    -fx-font-family: "Leelawadee Bold";
+    -fx-font-size: 23;
 }
