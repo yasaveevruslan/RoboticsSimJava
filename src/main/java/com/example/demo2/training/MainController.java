@@ -20,8 +20,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MainController {
     @FXML
@@ -36,6 +39,8 @@ public class MainController {
     public Button buttonReset, buttonStart, buttonStop;
     public ScrollPane Scroll;
     public StackPane StackActivityPanel;
+    public JFXButton buttonChangeMode;
+    public AnchorPane parent;
 
     private boolean buttonSmartClicked = false;
     private boolean buttonImageClicked = false;
@@ -65,10 +70,39 @@ public class MainController {
         buttonImageContours.setOnAction(actionEvent -> actionWithImageContours());
         buttonImageContoursSmall.setOnAction(actionEvent -> actionWithImageContours());
 
+        buttonChangeMode.setOnAction(actionEvent -> changeMode());
+
+    }
+    private boolean isLightMode = true;
+
+    @FXML
+    public void changeMode(){
+        isLightMode = !isLightMode;
+        if(isLightMode){
+            setLightMode();
+        }else{
+            setDarkMode();
+        }
+    }
+
+    private void setLightMode(){
+        String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
+        parent.getStylesheets().remove(darkModeCss);
+        String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
+
+        parent.getStylesheets().add(ligModeCss);
+    }
+    private void setDarkMode(){
+        String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
+        String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
+        parent.getStylesheets().remove(ligModeCss);
+
+        parent.getStylesheets().add(darkModeCss);
+
     }
     @FXML
-    public void setImageUrl(String imageUrl) {
-        Image image = new Image(imageUrl);
+    public void setImageUrl(URL imageUrl) {
+        Image image = new Image(imageUrl.toExternalForm());
         imageArea.setImage(image);
     }
 
@@ -125,13 +159,12 @@ public class MainController {
 
             ActivityPanel.getChildren().clear();
             ActivityPanel.getChildren().add(newPanel);
-            Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
 
         }else{
             if (originalPanel != null) {
                 ActivityPanel.getChildren().clear();
                 ActivityPanel.getChildren().add(originalPanel);
-                Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
                 buttonSmartClicked = false;
                 numGroup = 0;
@@ -142,7 +175,6 @@ public class MainController {
     }
 
 
-
     @FXML
     private void actionWithImageContours(){
         LogicBorders borders = new LogicBorders();
@@ -150,15 +182,12 @@ public class MainController {
         ImageView img = new ImageView();
 
         if(buttonSmartClicked){
-
-            Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             buttonSmartClicked = false;
             numGroup = 0;
             initY = 0;
             views.clear();
         }
         if (!buttonImageClicked) {
-            Scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
             AnchorPane newPanel = new AnchorPane();
 
@@ -281,7 +310,7 @@ public class MainController {
     }
 
     private String matToImage(Mat mat) {
-        String url ="C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\Image\\im.png";
+        String url ="C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\im.png";
         System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
         Imgcodecs.imwrite(url, mat);
         return url;
@@ -297,5 +326,6 @@ public class MainController {
             StackActivityPanel.setPrefWidth(currentWidth);
         }
     }
+
 
 }

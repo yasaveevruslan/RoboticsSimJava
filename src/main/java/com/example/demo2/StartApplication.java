@@ -8,9 +8,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class StartApplication extends Application {
-    private String PATH_AREA = "C:\\Users\\Monbe\\IdeaProjects\\demo2\\src\\main\\resources\\com\\example\\demo2\\Image\\paint.png";
+    private URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
+
 
     @Override
     public void start(Stage stage) throws IOException {

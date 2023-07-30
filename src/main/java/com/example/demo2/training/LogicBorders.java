@@ -6,14 +6,14 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class LogicBorders {
-    private String PATH_AREA = "C:\\Users\\Monbe\\IdeaProjects\\demo2\\src\\main\\resources\\com\\example\\demo2\\Image\\paint.png";
-
-    private final Mat sourceImage = Imgcodecs.imread(PATH_AREA);
+    String PATH_AREA = "C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\paint.png";
+    Mat sourceImage = Imgcodecs.imread(PATH_AREA);
 
     static{
         System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
