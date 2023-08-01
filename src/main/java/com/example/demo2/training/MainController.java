@@ -269,6 +269,8 @@ public class MainController {
         textArea.setLayoutY(33);
         textArea.setPrefSize(120, 67);
         textArea.setStyle("-fx-border-color: #808080;");
+        textArea.setFont(font);
+        textArea.setFont(Font.font(font.getFamily(), FontWeight.BOLD, font.getSize()));
         textArea.setMouseTransparent(true);
         textArea.setFocusTraversable(false);
         textArea.setText(String.valueOf(value));
@@ -348,7 +350,6 @@ public class MainController {
                 StackActivityPanel.setPrefWidth(currentWidth);
             }
         }
-
     }
 
     @FXML
@@ -389,7 +390,7 @@ public class MainController {
             LogicBorders borders = new LogicBorders();
 
             String text = matToImage(borders.showFrameContours(borders.calculateBorders((int) imageRobot.getLayoutX(), (int) imageRobot.getLayoutY())));
-            callback.accept(text); // Pass the processed image to the callback
+            callback.accept(text);
         }));
 
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -421,8 +422,6 @@ public class MainController {
         booleanList.add(true);
 
         int rectangleCount = 0;
-        System.out.println("Количество "+rectangleCount);
-
         for (int i = 0; i < views.size(); i++) {
             for (Node node : views.get(i).getChildren()) {
                 if (node instanceof Rectangle rectangle) {
@@ -434,14 +433,11 @@ public class MainController {
                         }
                     }
                     rectangleCount++;
-
                 }else if(node instanceof TextArea){
                     rectangleCount=0;
-
                 }
             }
         }
-        System.out.println("Количество "+rectangleCount);
         variablesList.clear();
     }
 
