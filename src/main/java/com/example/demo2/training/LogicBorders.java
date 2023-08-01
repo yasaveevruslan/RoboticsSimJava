@@ -6,7 +6,6 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,7 +124,7 @@ public class LogicBorders {
                     double distanceX = centerX - robotPosition.x;
                     double distanceY = Math.abs(centerY - robotPosition.y);
 
-                    if (distanceX > 0 && distanceY <= 36) { // Проверка только справа и по вертикали
+                    if (distanceX > 0 && distanceY <= 100 && distanceY >= -100) { // Проверка только справа и по вертикали
                         distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                         if (distance < minDistance) {
                             minDistance = distance;
@@ -207,8 +206,6 @@ public class LogicBorders {
 
             Point robotPosition = new Point(posX, posY);
 
-
-
             for (MatOfPoint contour : contours) {
                 Moments moments = Imgproc.moments(contour);
                 double centerX = moments.m10 / moments.m00;
@@ -227,7 +224,6 @@ public class LogicBorders {
                     }
                 }
 
-
                 if (distanceX > 0 && distanceY <= 100 && distanceY >= -100) { // Проверка только справа и по вертикали
                     distanceRight = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     if (distanceRight < minDistanceRight) {
@@ -243,7 +239,7 @@ public class LogicBorders {
                         nearestContours.add(contour);
                     }
                 }
-//
+
                 if (distanceXDownUp <= yThreshold && centerY < posY) {
                     distanceUp = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     if (distanceUp < minDistanceUp) {

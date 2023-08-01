@@ -160,7 +160,7 @@ public class MainController {
             createTextView("posY",imageRobot.getLayoutY());
 
 
-//            createBooleanView("posC");
+            createBooleanView("posC");
 
             addViewsOnPanel(newPanel);
 
@@ -213,7 +213,6 @@ public class MainController {
             newPanel.getChildren().clear();
 
             repaintImageBorders((processedImage) -> {
-                // Here, you can handle the processed image, e.g., display it in an ImageView.
                 Image image = new Image(processedImage);
                 img.setImage(image);
                 img.setBlendMode(BlendMode.DIFFERENCE);
@@ -296,7 +295,7 @@ public class MainController {
 
         rectangle1.setArcHeight(5);
         rectangle1.setArcWidth(5);
-        rectangle1.setFill(Color.rgb(35, 255, 31));
+//        rectangle1.setFill(Color.rgb(35, 255, 31));
         rectangle1.setLayoutY(33);
         rectangle1.setStroke(Color.BLACK);
 
@@ -337,10 +336,10 @@ public class MainController {
 
     private void handleKeyPressed(KeyEvent event) {
         if(buttonImageClicked){
-            if (event.getCode() == KeyCode.I && StackActivityPanel.getWidth()<=1000) {
+            if (event.getCode() == KeyCode.Q && StackActivityPanel.getWidth()<=800) {
                 double currentWidth = StackActivityPanel.getPrefWidth() + 100;
                 StackActivityPanel.setPrefWidth(currentWidth);
-            }else if(event.getCode() == KeyCode.K){
+            }else if(event.getCode() == KeyCode.E){
                 double currentWidth = StackActivityPanel.getPrefWidth() - 100;
                 StackActivityPanel.setPrefWidth(currentWidth);
             }
