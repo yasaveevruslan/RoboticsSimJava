@@ -1,9 +1,11 @@
 package com.example.demo2.training;
 
+import javafx.animation.*;
 import javafx.fxml.FXML;
 import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -19,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -42,9 +45,15 @@ public class MainController {
     public StackPane StackActivityPanel;
     public JFXButton buttonChangeMode;
     public AnchorPane parent;
+    public ImageView imageRobot;
 
     private boolean buttonSmartClicked = false;
     private boolean buttonImageClicked = false;
+    private boolean stopClicked = false;
+    private boolean resetClicked = false;
+    private boolean startClicked = false;
+
+    private boolean isLightMode = true;
 
     private AnchorPane originalPanel;
 
@@ -54,10 +63,18 @@ public class MainController {
     private String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
     private String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
     private List<Group> views = new ArrayList<>();
+    private List<Double> variablesList = new ArrayList<>();
 
+
+    public MainController() {
+        Timeline updateTimeline = new Timeline(new KeyFrame(Duration.millis(500), e -> updateValue()));
+        updateTimeline.setCycleCount(Animation.INDEFINITE);
+        updateTimeline.play();
+    }
 
     @FXML
     private void initialize() {
+
         if(!(buttonImageClicked && buttonSmartClicked)){
             Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             Scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -74,37 +91,39 @@ public class MainController {
 
         buttonChangeMode.setOnAction(actionEvent -> changeMode());
 
-    }
-    private boolean isLightMode = true;
+        buttonStart.setOnAction(actionEvent -> buttonStartController());
+        buttonReset.setOnAction(actionEvent -> buttonResetController());
+        buttonStop.setOnAction(actionEvent -> buttonStopController());
 
+    }
     @FXML
-    public void changeMode(){
-        isLightMode = !isLightMode;
-        if(isLightMode){
-            setLightMode();
-        }else{
-            setDarkMode();
-        }
+    private void buttonStartController(){
+        startClicked = !startClicked;
+        repaintRobot();
     }
+    @FXML
+    private void buttonStopController(){
+        stopClicked = !stopClicked;
 
-    private void setLightMode(){
-        parent.getStylesheets().remove(darkModeCss);
-        parent.getStylesheets().add(ligModeCss);
-        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
-
-        iconView.setGlyphName("MOON_ALT");
 
     }
-    private void setDarkMode(){
-        parent.getStylesheets().remove(ligModeCss);
-        parent.getStylesheets().add(darkModeCss);
-        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
-        iconView.setGlyphName("SUN_ALT");
+    @FXML
+    private void buttonResetController(){
+        resetClicked = !resetClicked;
+
+
     }
+
     @FXML
     public void setImageUrl(URL imageUrl) {
         Image image = new Image(imageUrl.toExternalForm());
         imageArea.setImage(image);
+    }
+
+    @FXML
+    public void setImageRobot(URL imageUrl) {
+        Image image = new Image(imageUrl.toExternalForm());
+        imageRobot.setImage(image);
     }
 
     @FXML
@@ -133,19 +152,13 @@ public class MainController {
             AnchorPane.setTopAnchor(newPanel, 0.0);
             AnchorPane.setRightAnchor(newPanel, 0.0);
 
-            createTextView("posA");
-            createBooleanView("posB");
-            createBooleanView("posC");
-            createBooleanView("posD");
-            createBooleanView("posE");
-            createBooleanView("posF");
-            createBooleanView("posG");
-            createBooleanView("posI");
-            createBooleanView("posY");
-            createBooleanView("posU");
-            createBooleanView("posO");
-            createBooleanView("posPG");
-            createBooleanView("posL");
+
+            createTextView("posX", imageRobot.getLayoutX());
+
+            createTextView("posY",imageRobot.getLayoutY());
+
+
+//            createBooleanView("posC");
 
             addViewsOnPanel(newPanel);
 
@@ -166,11 +179,11 @@ public class MainController {
             if (originalPanel != null) {
                 ActivityPanel.getChildren().clear();
                 ActivityPanel.getChildren().add(originalPanel);
+                views.clear();
 
                 buttonSmartClicked = false;
                 numGroup = 0;
                 initY = 0;
-                views.clear();
             }
         }
     }
@@ -236,7 +249,7 @@ public class MainController {
         }
     }
 
-    private void createTextView(String nameLabel){
+    private void createTextView(String nameLabel, double value){
         Group group = new Group();
 
         Rectangle rectangle = new Rectangle(120,100);
@@ -252,6 +265,7 @@ public class MainController {
         textArea.setStyle("-fx-border-color: #808080;");
         textArea.setMouseTransparent(true);
         textArea.setFocusTraversable(false);
+        textArea.setText(String.valueOf(value));
 
         Label label = new Label(nameLabel);
         label.setAlignment(Pos.CENTER);
@@ -320,14 +334,67 @@ public class MainController {
     }
 
     private void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.I && StackActivityPanel.getWidth()<=1000) {
-            double currentWidth = StackActivityPanel.getPrefWidth() + 100;
-            StackActivityPanel.setPrefWidth(currentWidth);
-        }else if(event.getCode() == KeyCode.K){
-            double currentWidth = StackActivityPanel.getPrefWidth() - 100;
-            StackActivityPanel.setPrefWidth(currentWidth);
+        if(buttonImageClicked){
+            if (event.getCode() == KeyCode.I && StackActivityPanel.getWidth()<=1000) {
+                double currentWidth = StackActivityPanel.getPrefWidth() + 100;
+                StackActivityPanel.setPrefWidth(currentWidth);
+            }else if(event.getCode() == KeyCode.K){
+                double currentWidth = StackActivityPanel.getPrefWidth() - 100;
+                StackActivityPanel.setPrefWidth(currentWidth);
+            }
+        }
+
+    }
+
+    @FXML
+    public void changeMode(){
+        isLightMode = !isLightMode;
+        if(isLightMode){
+            setLightMode();
+        }else{
+            setDarkMode();
         }
     }
 
+    private void setLightMode(){
+        parent.getStylesheets().remove(darkModeCss);
+        parent.getStylesheets().add(ligModeCss);
+        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
+
+        iconView.setGlyphName("MOON_ALT");
+
+    }
+    private void setDarkMode(){
+        parent.getStylesheets().remove(ligModeCss);
+        parent.getStylesheets().add(darkModeCss);
+        FontAwesomeIconView iconView = (FontAwesomeIconView) buttonChangeMode.getGraphic();
+        iconView.setGlyphName("SUN_ALT");
+    }
+
+    @FXML
+    private void repaintRobot(){
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> updateImagePosition()));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+    }
+    private void updateImagePosition() {
+        imageRobot.setLayoutX(290);
+        imageRobot.setLayoutY(290);
+    }
+
+
+    private void updateValue(){
+        variablesList.add(imageRobot.getLayoutX());
+        variablesList.add(imageRobot.getLayoutY());
+
+        for (int i = 0; i < views.size(); i++) {
+            for (Node node : views.get(i).getChildren()) {
+                if (node instanceof TextArea textArea) {
+                    textArea.setText(String.valueOf(variablesList.get(i)));
+                }
+            }
+        }
+        variablesList.clear();
+    }
 
 }

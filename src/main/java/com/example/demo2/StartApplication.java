@@ -12,6 +12,8 @@ import java.net.URL;
 
 public class StartApplication extends Application {
     private URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
+    private URL PATH_ROBOT = getClass().getResource("/com/example/demo2/none.png");
+
 
 
     @Override
@@ -22,6 +24,8 @@ public class StartApplication extends Application {
         MainController controller = fxmlLoader.getController();
 
         controller.setImageUrl(PATH_AREA);
+        controller.setImageRobot(PATH_ROBOT);
+
         Scene scene = new Scene(root, 1200, 800);
         stage.setTitle("Demo");
         stage.setScene(scene);
