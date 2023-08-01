@@ -66,12 +66,17 @@ public class MainController {
     private String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
     private List<Group> views = new ArrayList<>();
     private List<Double> variablesList = new ArrayList<>();
+    private List<Boolean> booleanList = new ArrayList<>();
 
 
     public MainController() {
-        Timeline updateTimeline = new Timeline(new KeyFrame(Duration.millis(500), e -> updateValue()));
-        updateTimeline.setCycleCount(Animation.INDEFINITE);
-        updateTimeline.play();
+        Timeline updateTimeValue = new Timeline(new KeyFrame(Duration.millis(500), e -> updateValue()));
+        updateTimeValue.setCycleCount(Animation.INDEFINITE);
+        updateTimeValue.play();
+
+        Timeline updateTimeBoolean = new Timeline(new KeyFrame(Duration.millis(500), e -> updateBoolean()));
+        updateTimeBoolean.setCycleCount(Animation.INDEFINITE);
+        updateTimeBoolean.play();
     }
 
     @FXML
@@ -161,6 +166,8 @@ public class MainController {
 
 
             createBooleanView("posC");
+            createBooleanView("posG");
+
 
             addViewsOnPanel(newPanel);
 
@@ -239,8 +246,6 @@ public class MainController {
         }else{
             if (originalPanel != null) {
 
-
-
                 ActivityPanel.getChildren().clear();
                 StackActivityPanel.setPrefSize(407, 736);
                 ActivityPanel.getChildren().add(originalPanel);
@@ -295,7 +300,6 @@ public class MainController {
 
         rectangle1.setArcHeight(5);
         rectangle1.setArcWidth(5);
-//        rectangle1.setFill(Color.rgb(35, 255, 31));
         rectangle1.setLayoutY(33);
         rectangle1.setStroke(Color.BLACK);
 
@@ -409,6 +413,35 @@ public class MainController {
                 }
             }
         }
+        variablesList.clear();
+    }
+
+    private void updateBoolean() {
+        booleanList.add(startClicked);
+        booleanList.add(true);
+
+        int rectangleCount = 0;
+        System.out.println("Количество "+rectangleCount);
+
+        for (int i = 0; i < views.size(); i++) {
+            for (Node node : views.get(i).getChildren()) {
+                if (node instanceof Rectangle rectangle) {
+                    if (rectangleCount % 2 != 0) {
+                        if (Boolean.TRUE.equals(booleanList.get(i))) {
+                            rectangle.setFill(Color.rgb(35, 255, 31));
+                        } else {
+                            rectangle.setFill(Color.rgb(219, 44, 44));
+                        }
+                    }
+                    rectangleCount++;
+
+                }else if(node instanceof TextArea){
+                    rectangleCount=0;
+
+                }
+            }
+        }
+        System.out.println("Количество "+rectangleCount);
         variablesList.clear();
     }
 
