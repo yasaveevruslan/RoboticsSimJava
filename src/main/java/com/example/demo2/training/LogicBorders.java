@@ -227,7 +227,8 @@ public class LogicBorders {
                     }
                 }
 
-                if (distanceX > 0 && distanceY <= 36) { // Проверка только справа и по вертикали
+
+                if (distanceX > 0 && distanceY <= 100 && distanceY >= -100) { // Проверка только справа и по вертикали
                     distanceRight = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     if (distanceRight < minDistanceRight) {
                         minDistanceRight = distanceRight;
@@ -239,16 +240,14 @@ public class LogicBorders {
                     distanceDown = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     if (distanceDown < minDistanceDown) {
                         minDistanceDown = distanceDown;
-                        nearestContours.clear();
                         nearestContours.add(contour);
                     }
                 }
-
+//
                 if (distanceXDownUp <= yThreshold && centerY < posY) {
                     distanceUp = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     if (distanceUp < minDistanceUp) {
                         minDistanceUp = distanceUp;
-                        nearestContours.clear();
                         nearestContours.add(contour);
                     }
                 }

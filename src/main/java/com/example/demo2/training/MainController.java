@@ -28,6 +28,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+
 import de.jensd.fx.glyphs.fontawesome.*;
 
 public class MainController {
@@ -191,8 +193,7 @@ public class MainController {
 
     @FXML
     private void actionWithImageContours(){
-        LogicBorders borders = new LogicBorders();
-        String text = matToImage(borders.showFrameContours(borders.calculateBorders(290,290)));
+
         ImageView img = new ImageView();
 
         if(buttonSmartClicked){
@@ -211,11 +212,14 @@ public class MainController {
             AnchorPane.setRightAnchor(newPanel, 0.0);
             newPanel.getChildren().clear();
 
-            Image image = new Image(text);
-            img.setImage(image);
-            img.setBlendMode(BlendMode.DIFFERENCE);
-            img.setFitWidth(600);
-            img.setFitHeight(400);
+            repaintImageBorders((processedImage) -> {
+                // Here, you can handle the processed image, e.g., display it in an ImageView.
+                Image image = new Image(processedImage);
+                img.setImage(image);
+                img.setBlendMode(BlendMode.DIFFERENCE);
+                img.setFitWidth(600);
+                img.setFitHeight(400);
+            });
 
             AnchorPane.setTopAnchor(img, 50.0);
             AnchorPane.setLeftAnchor(img, 50.0);
@@ -236,9 +240,7 @@ public class MainController {
         }else{
             if (originalPanel != null) {
 
-                String newText = matToImage(borders.showFrameContours(borders.calculateBorders(290, 290)));
-                Image newImage = new Image(newText);
-                img.setImage(newImage);
+
 
                 ActivityPanel.getChildren().clear();
                 StackActivityPanel.setPrefSize(407, 736);
@@ -377,11 +379,25 @@ public class MainController {
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
+    @FXML
+    private void repaintImageBorders(Consumer<String> callback) {
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> {
+            LogicBorders borders = new LogicBorders();
+
+            String text = matToImage(borders.showFrameContours(borders.calculateBorders((int) imageRobot.getLayoutX(), (int) imageRobot.getLayoutY())));
+            callback.accept(text); // Pass the processed image to the callback
+        }));
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+    }
+
     private void updateImagePosition() {
         imageRobot.setLayoutX(290);
         imageRobot.setLayoutY(290);
+        imageRobot.setRotate(90);
     }
-
 
     private void updateValue(){
         variablesList.add(imageRobot.getLayoutX());
