@@ -1,17 +1,24 @@
 package com.example.demo2.training;
 
+
 import org.opencv.core.*;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class LogicBorders {
-    String PATH_AREA = "C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\paint.png";
+    String fileName = "paint.png";
+
+    Path path = Paths.get("src", "main", "resources", "com", "example", "demo2", fileName);
+    String PATH_AREA = path.toString();
     Mat sourceImage = Imgcodecs.imread(PATH_AREA);
 
     static{

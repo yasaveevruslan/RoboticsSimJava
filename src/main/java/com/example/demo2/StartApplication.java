@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.net.URL;
 
 public class StartApplication extends Application {
-    private URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
-    private URL PATH_ROBOT = getClass().getResource("/com/example/demo2/none.png");
+    private final URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
+    private final URL PATH_ROBOT = getClass().getResource("/com/example/demo2/none.png");
 
 
 

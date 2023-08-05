@@ -25,7 +25,11 @@ import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -333,10 +337,26 @@ public class MainController {
     }
 
     private String matToImage(Mat mat) {
-        String url ="C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\resources\\com\\example\\demo2\\im.png";
-        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
-        Imgcodecs.imwrite(url, mat);
-        return url;
+        String fileName = "im.png";
+
+        try {
+            // Получение пути к ресурсу (папке с классом)
+            Path resourcePath = Paths.get(getClass().getResource("").toURI());
+
+            // Полный путь до файла изображения
+            Path imagePath = resourcePath.resolve(fileName);
+
+            // Преобразование пути в строку
+            String url = imagePath.toString();
+
+            // Запись файла
+            Imgcodecs.imwrite(url, mat);
+
+            return url;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return "Ошибка: " + e.getMessage();
+        }
 
     }
 
