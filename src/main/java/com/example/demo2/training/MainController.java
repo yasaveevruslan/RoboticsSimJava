@@ -23,15 +23,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import de.jensd.fx.glyphs.fontawesome.*;
@@ -53,6 +54,8 @@ public class MainController {
     public AnchorPane parent;
     public ImageView imageRobot;
 
+    public static boolean needDrawContour = true;
+
     private boolean buttonSmartClicked = false;
     private boolean buttonImageClicked = false;
     private boolean stopClicked = false;
@@ -66,30 +69,36 @@ public class MainController {
     private int initY = 0;
     private int numGroup = 0;
     private final Font font = new Font("Arial", 16);
-    private String darkModeCss = getClass().getResource("/com/example/demo2/darkMode.css").toExternalForm();
-    private String ligModeCss = getClass().getResource("/com/example/demo2/lightMode.css").toExternalForm();
+    private final String darkModeCss = Objects.requireNonNull(getClass().getResource("/com/example/demo2/darkMode.css")).toExternalForm();
+    private final String ligModeCss = Objects.requireNonNull(getClass().getResource("/com/example/demo2/lightMode.css")).toExternalForm();
     private List<Group> views = new ArrayList<>();
     private List<Double> variablesList = new ArrayList<>();
     private List<Boolean> booleanList = new ArrayList<>();
 
 
-    public MainController() {
-        Timeline updateTimeValue = new Timeline(new KeyFrame(Duration.millis(500), e -> updateValue()));
+    private void initTimelineForSmartBoard(){
+        Timeline updateTimeValue = new Timeline(new KeyFrame(Duration.millis(300), e -> updateValue()));
         updateTimeValue.setCycleCount(Animation.INDEFINITE);
         updateTimeValue.play();
 
-        Timeline updateTimeBoolean = new Timeline(new KeyFrame(Duration.millis(500), e -> updateBoolean()));
+        Timeline updateTimeBoolean = new Timeline(new KeyFrame(Duration.millis(300), e -> updateBoolean()));
         updateTimeBoolean.setCycleCount(Animation.INDEFINITE);
         updateTimeBoolean.play();
+    }
+    public MainController() {
+        initTimelineForSmartBoard();
     }
 
     @FXML
     private void initialize() {
 
+
         if(!(buttonImageClicked && buttonSmartClicked)){
             Scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             Scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         }
+
+        initTimelineForSmartBoard();
 
         buttonONandOFF.setOnAction(actionEvent -> hidePanel(true));
         buttonONandOFFSmall.setOnAction(actionEvent -> hidePanel(false));
@@ -214,6 +223,7 @@ public class MainController {
             views.clear();
         }
         if (!buttonImageClicked) {
+            buttonImageClicked = true;
 
             AnchorPane newPanel = new AnchorPane();
 
@@ -229,13 +239,13 @@ public class MainController {
                 img.setBlendMode(BlendMode.DIFFERENCE);
                 img.setFitWidth(600);
                 img.setFitHeight(400);
+
             });
 
             AnchorPane.setTopAnchor(img, 50.0);
             AnchorPane.setLeftAnchor(img, 50.0);
             AnchorPane.setRightAnchor(img, 140.0);
             newPanel.getChildren().add(img);
-            buttonImageClicked = true;
             Scroll.setOnKeyPressed(this::handleKeyPressed);
 
             if(originalPanel == null){
@@ -340,15 +350,10 @@ public class MainController {
         String fileName = "im.png";
 
         try {
-            // Получение пути к ресурсу (папке с классом)
-            Path resourcePath = Paths.get(getClass().getResource("").toURI());
 
-            // Полный путь до файла изображения
-            Path imagePath = resourcePath.resolve(fileName);
-
+            Path imagePath = Paths.get(Objects.requireNonNull(getClass().getResource("")).toURI()).resolve(fileName);
             // Преобразование пути в строку
             String url = imagePath.toString();
-
             // Запись файла
             Imgcodecs.imwrite(url, mat);
 
@@ -399,23 +404,27 @@ public class MainController {
 
     @FXML
     private void repaintRobot(){
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> updateImagePosition()));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        if(startClicked){
+            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(300), e -> updateImagePosition()));
+            timeline.setCycleCount(Animation.INDEFINITE);
+            timeline.play();
+        }
+
     }
     @FXML
     private void repaintImageBorders(Consumer<String> callback) {
-
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> {
-            LogicBorders borders = new LogicBorders();
-
-            String text = matToImage(borders.showFrameContours(borders.calculateBorders((int) imageRobot.getLayoutX(), (int) imageRobot.getLayoutY())));
-            callback.accept(text);
-        }));
-
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        if (buttonImageClicked) {
+            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(200), e -> {
+                LogicBorders borders = new LogicBorders();
+                List< MatOfPoint> li = borders.calculateBorders((int)imageRobot.getLayoutX(), (int)imageRobot.getLayoutY());
+                String text = matToImage(borders.showFrameContours(li,borders.compareContour(li)));
+                callback.accept(text);
+            }));
+            timeline.setCycleCount(Animation.INDEFINITE);
+            timeline.play();
+        }
     }
+
 
     private void updateImagePosition() {
         imageRobot.setLayoutX(290);
@@ -446,11 +455,8 @@ public class MainController {
             for (Node node : views.get(i).getChildren()) {
                 if (node instanceof Rectangle rectangle) {
                     if (rectangleCount % 2 != 0) {
-                        if (Boolean.TRUE.equals(booleanList.get(i))) {
-                            rectangle.setFill(Color.rgb(35, 255, 31));
-                        } else {
-                            rectangle.setFill(Color.rgb(219, 44, 44));
-                        }
+                        boolean isTrue = Boolean.TRUE.equals(booleanList.get(i));
+                        rectangle.setFill(isTrue ? Color.rgb(35, 255, 31) : Color.rgb(219, 44, 44));
                     }
                     rectangleCount++;
                 }else if(node instanceof TextArea){

@@ -6,18 +6,29 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StartApplication extends Application {
     private final URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
     private final URL PATH_ROBOT = getClass().getResource("/com/example/demo2/none.png");
 
+    public static Mat sourceImage;
+
+    public static List<MatOfPoint> lastContours = new ArrayList<>();
 
 
     @Override
     public void start(Stage stage) throws IOException {
+        initMatImage();
         FXMLLoader fxmlLoader = new FXMLLoader(StartApplication.class.getResource("hello-view.fxml"));
         Parent root = fxmlLoader.load();
 
@@ -32,8 +43,24 @@ public class StartApplication extends Application {
         stage.show();
     }
 
+    private void initMatImage(){
+        String fileName = "paint.png";
+
+        Path path = Paths.get("src", "main", "resources", "com", "example", "demo2", fileName);
+        String area = path.toString();
+        sourceImage = Imgcodecs.imread(area);
+
+    }
+
+    public static String compMatImage(){
+        String fileName = "im.png";
+        Path path = Paths.get("src", "main", "resources", "com", "example", "demo2", fileName);
+        return path.toString();
+    }
 
     public static void main(String[] args) {
+
+        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
         launch();
     }
 }

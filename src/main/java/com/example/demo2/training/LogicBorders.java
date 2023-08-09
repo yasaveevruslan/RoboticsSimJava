@@ -1,43 +1,31 @@
 package com.example.demo2.training;
 
-
+import com.example.demo2.StartApplication;
 import org.opencv.core.*;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.example.demo2.StartApplication.lastContours;
+import static com.example.demo2.StartApplication.sourceImage;
+
 public class LogicBorders {
-    String fileName = "paint.png";
-
-    Path path = Paths.get("src", "main", "resources", "com", "example", "demo2", fileName);
-    String PATH_AREA = path.toString();
-    Mat sourceImage = Imgcodecs.imread(PATH_AREA);
-
-    static{
-        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
-    }
-
 
     //Берёт значения сверху
     public void findNearestUpContours(int posX, int posY) {
-
-        double distance = 0.0;
-
+        double distanceUp = 0.0;
         try {
 
                 List<MatOfPoint> contours = findNearestContours();
                 //Условия для фильтрации контуров, находящихся выше картинки робота
                 int yThreshold = 36;
                 List<MatOfPoint> nearestContours = new ArrayList<>();
-                double minDistance = Double.MAX_VALUE;
+
 
                 Point robotPosition = new Point(posX, posY);
 
@@ -48,18 +36,17 @@ public class LogicBorders {
 
                     double distanceX = Math.abs(centerX - robotPosition.x);
 
-                    if (distanceX <= yThreshold && centerY < posY) {
-                        distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestContours.clear();
-                            nearestContours.add(contour);
-                        }
+                    boolean isUp = distanceX <= yThreshold && centerY < posY;
+
+                    if (isUp) {
+                        double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
+                        nearestContours.add(contour);
+                        distanceUp = Math.min(distanceUp, distance);
                     }
                 }
 
 
-                showFrameContours(nearestContours);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,8 +57,7 @@ public class LogicBorders {
 
     //Берёт значения снизу
     public void findNearestDownContours(int posX, int posY) {
-
-        double distance = 0.0;
+        double distanceDown = 0.0;
 
         try {
                 List<MatOfPoint> contours = findNearestContours();
@@ -79,7 +65,6 @@ public class LogicBorders {
                 //Условия для фильтрации контуров, находящихся ниже картинки робота
                 int yThreshold = 36;
                 List<MatOfPoint> nearestContours = new ArrayList<>();
-                double minDistance = Double.MAX_VALUE;
 
                 Point robotPosition = new Point(posX, posY);
 
@@ -90,19 +75,15 @@ public class LogicBorders {
 
                     double distanceX = Math.abs(centerX - robotPosition.x);
 
-                    if (distanceX <= yThreshold && centerY > posY) {
-                        distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestContours.clear();
-                            nearestContours.add(contour);
-                        }
+                    boolean isDown = distanceX <= yThreshold && centerY > posY;
+
+                    if (isDown) {
+                        double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
+                        nearestContours.add(contour);
+                        distanceDown = Math.min(distanceDown, distance);
                     }
                 }
-
 //                showFrameContours(nearestContours);
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,15 +93,12 @@ public class LogicBorders {
     }
     //справа
     public void findNearestRightContours(int posX, int posY) {
-
-        double distance = 0.0;
+        double distanceRight = 0.0;
 
         try {
                 List<MatOfPoint> contours = findNearestContours();
                 //Условия для фильтрации контуров, находящихся ниже картинки робота
                 List<MatOfPoint> nearestContours = new ArrayList<>();
-                double minDistance = Double.MAX_VALUE;
-
                 Point robotPosition = new Point(posX, posY);
 
                 for (MatOfPoint contour : contours) {
@@ -131,38 +109,33 @@ public class LogicBorders {
                     double distanceX = centerX - robotPosition.x;
                     double distanceY = Math.abs(centerY - robotPosition.y);
 
-                    if (distanceX > 0 && distanceY <= 100 && distanceY >= -100) { // Проверка только справа и по вертикали
-                        distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestContours.add(contour);
-                        }
+                    boolean isRight = distanceX > 0 && distanceY <= 100 && distanceY >= -100;
+
+                    if (isRight) {
+                        double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
+                        nearestContours.add(contour);
+                        distanceRight = Math.min(distanceRight, distance);
                     }
+
                 }
 
-                showFrameContours(nearestContours);
+//                showFrameContours(nearestContours);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 //        Elements.disRight = distance;
     }
 
     //слева
     public void findNearestLeftContours(int posX, int posY) {
 
-        double distance = 0.0;
-
+        double distanceLeft = 0.0;
         try {
                 List<MatOfPoint> contours = findNearestContours();
 
                 //Условия для фильтрации контуров, находящихся левее картинки робота
                 List<MatOfPoint> nearestContours = new ArrayList<>();
-                double minDistance = Double.MAX_VALUE;
-
                 Point robotPosition = new Point(posX, posY);
-
-
 
                 for (MatOfPoint contour : contours) {
                     Moments moments = Imgproc.moments(contour);
@@ -172,46 +145,35 @@ public class LogicBorders {
                     double distanceX = centerX - robotPosition.x;
                     double distanceY = Math.abs(centerY - robotPosition.y);
 
-                    if (distanceX < 0 && distanceY <= 36) { // Проверка только слева и по вертикали
-                        distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestContours.add(contour);
-                        }
+                    boolean isLeft = distanceX < 0 && distanceY <= 36;
+
+                    if (isLeft) {
+                        double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
+                        nearestContours.add(contour);
+                        distanceLeft = Math.min(distanceLeft, distance);
                     }
                 }
-
-                showFrameContours(nearestContours);
+//                showFrameContours(nearestContours);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 //        Elements.disLeft = distance;
-
     }
 
-    public List<MatOfPoint> calculateBorders(int posX, int posY){
+    public List<MatOfPoint> calculateBorders(int posX, int posY) {
 
         double distanceUp = 0.0;
         double distanceDown = 0.0;
         double distanceRight = 0.0;
         double distanceLeft = 0.0;
 
+        List<MatOfPoint> nearestContours = new ArrayList<>();
+
         try {
             List<MatOfPoint> contours = findNearestContours();
-
-            //Условия для фильтрации контуров, находящихся левее картинки робота
-            List<MatOfPoint> nearestContours = new ArrayList<>();
-
-            int yThreshold = 36;
-
-            double minDistanceUp = Double.MAX_VALUE;
-            double minDistanceDown = Double.MAX_VALUE;
-            double minDistanceRight = Double.MAX_VALUE;
-            double minDistanceLeft = Double.MAX_VALUE;
-
             Point robotPosition = new Point(posX, posY);
+            int yThreshold = 36;
 
             for (MatOfPoint contour : contours) {
                 Moments moments = Imgproc.moments(contour);
@@ -220,38 +182,25 @@ public class LogicBorders {
 
                 double distanceX = centerX - robotPosition.x;
                 double distanceY = Math.abs(centerY - robotPosition.y);
-
                 double distanceXDownUp = Math.abs(centerX - robotPosition.x);
 
-                if (distanceX < 0 && distanceY <= 36) { // Проверка только слева и по вертикали
-                    distanceLeft = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                    if (distanceLeft < minDistanceLeft) {
-                        minDistanceLeft = distanceLeft;
-                        nearestContours.add(contour);
-                    }
-                }
+                boolean isLeft = distanceX < 0 && distanceY <= 36;
+                boolean isRight = distanceX > 0 && distanceY <= 100 && distanceY >= -100;
+                boolean isDown = distanceXDownUp <= yThreshold && centerY > posY;
+                boolean isUp = distanceXDownUp <= yThreshold && centerY < posY;
 
-                if (distanceX > 0 && distanceY <= 100 && distanceY >= -100) { // Проверка только справа и по вертикали
-                    distanceRight = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                    if (distanceRight < minDistanceRight) {
-                        minDistanceRight = distanceRight;
-                        nearestContours.add(contour);
-                    }
-                }
+                if (isLeft || isRight || isDown || isUp) {
+                    double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
+                    nearestContours.add(contour);
 
-                if (distanceXDownUp <= yThreshold && centerY > posY) {
-                    distanceDown = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                    if (distanceDown < minDistanceDown) {
-                        minDistanceDown = distanceDown;
-                        nearestContours.add(contour);
-                    }
-                }
-
-                if (distanceXDownUp <= yThreshold && centerY < posY) {
-                    distanceUp = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
-                    if (distanceUp < minDistanceUp) {
-                        minDistanceUp = distanceUp;
-                        nearestContours.add(contour);
+                    if (isLeft) {
+                        distanceLeft = Math.min(distanceLeft, distance);
+                    } else if (isRight) {
+                        distanceRight = Math.min(distanceRight, distance);
+                    } else if (isDown) {
+                        distanceDown = Math.min(distanceDown, distance);
+                    } else if (isUp) {
+                        distanceUp = Math.min(distanceUp, distance);
                     }
                 }
             }
@@ -274,10 +223,11 @@ public class LogicBorders {
             if (sourceImage.empty()) {
                 return Collections.emptyList();
             } else {
+                Mat newImg = new Mat();
                 //Обработка самого изображения
-                Imgproc.cvtColor(sourceImage, sourceImage, Imgproc.COLOR_BGR2GRAY);
+                Imgproc.cvtColor(sourceImage, newImg, Imgproc.COLOR_BGR2GRAY);
                 Mat edges = new Mat();
-                Imgproc.Canny(sourceImage, edges, 100, 200, 5);
+                Imgproc.Canny(newImg, edges, 100, 200, 5);
 
                 List<MatOfPoint> contours = new ArrayList<>();
                 Mat hierarchy = new Mat();
@@ -289,17 +239,53 @@ public class LogicBorders {
         }
     }
 
-    public Mat showFrameContours(List<MatOfPoint> nearestContours){
-        Mat windowBoard = Imgcodecs.imread(PATH_AREA);
+    public Mat showFrameContours(List<MatOfPoint> nearestContours, boolean draw){
+        Mat wind;
 
-        // Отрисовка контуров подходящих по условию
-        Scalar contourColor = new Scalar(255, 0, 255);
-        Imgproc.drawContours(windowBoard, nearestContours, -1, contourColor, 4);
 
-        return windowBoard;
+        if(draw){
+            wind = sourceImage.clone();
+            // Отрисовка контуров подходящих по условию
+            Scalar contourColor = new Scalar(255, 0, 255);
+            Imgproc.drawContours(wind, nearestContours, -1, contourColor, 4);
+        }else{
+            wind = Imgcodecs.imread(StartApplication.compMatImage()).clone();
+        }
 
+        return wind;
     }
 
+    public boolean compareContour(List<MatOfPoint> nearestContours){
+        if(lastContours.isEmpty()){
+            lastContours = nearestContours;
+            return false;
+        }
+        if(nearestContours.size() != StartApplication.lastContours.size()){
+            lastContours = nearestContours;
+            return false;
+        }else{
+            boolean areAreasEqual = true;
+            int minSize = Math.min(nearestContours.size(), StartApplication.lastContours.size());
 
+            for (int i = 0; i < minSize; i++) {
+                MatOfPoint contour1 = nearestContours.get(i);
+                MatOfPoint contour2 = StartApplication.lastContours.get(i);
+
+                double area1 = Imgproc.contourArea(contour1);
+                double area2 = Imgproc.contourArea(contour2);
+
+                if (Math.abs(area1 - area2) > 0.1) { // You can adjust the threshold as needed
+                    areAreasEqual = false;
+                    break;
+                }
+            }
+            if (areAreasEqual) {
+                return true;
+            } else {
+                lastContours = nearestContours;
+                return false;
+            }
+        }
+    }
 
 }
