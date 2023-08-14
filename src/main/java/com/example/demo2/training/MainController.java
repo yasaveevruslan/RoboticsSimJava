@@ -58,9 +58,9 @@ public class MainController {
 
     private boolean buttonSmartClicked = false;
     private boolean buttonImageClicked = false;
-    private boolean stopClicked = false;
-    private boolean resetClicked = false;
-    private boolean startClicked = false;
+    public static boolean stopClicked = false;
+    public static boolean resetClicked = false;
+    public static boolean startClicked = false;
 
     private boolean isLightMode = true;
 
@@ -72,25 +72,36 @@ public class MainController {
     private final String darkModeCss = Objects.requireNonNull(getClass().getResource("/com/example/demo2/darkMode.css")).toExternalForm();
     private final String ligModeCss = Objects.requireNonNull(getClass().getResource("/com/example/demo2/lightMode.css")).toExternalForm();
     private List<Group> views = new ArrayList<>();
-    private List<Double> variablesList = new ArrayList<>();
+    private List<String> variablesList = new ArrayList<>();
     private List<Boolean> booleanList = new ArrayList<>();
+
+    private float posX = 290, posY = 290, posZ = 0;
+
+    public StateMachine sm = new StateMachine();
 
 
     private void initTimelineForSmartBoard(){
-        Timeline updateTimeValue = new Timeline(new KeyFrame(Duration.millis(300), e -> updateValue()));
+        Timeline updateTimeValue = new Timeline(new KeyFrame(Duration.millis(50), e -> updateValue()));
         updateTimeValue.setCycleCount(Animation.INDEFINITE);
         updateTimeValue.play();
 
-        Timeline updateTimeBoolean = new Timeline(new KeyFrame(Duration.millis(300), e -> updateBoolean()));
+        Timeline updateTimeBoolean = new Timeline(new KeyFrame(Duration.millis(50), e -> updateBoolean()));
         updateTimeBoolean.setCycleCount(Animation.INDEFINITE);
         updateTimeBoolean.play();
+
+        Timeline updateTimeRobot = new Timeline(new KeyFrame(Duration.millis(50), e -> updateRobot()));
+        updateTimeRobot.setCycleCount(Animation.INDEFINITE);
+        updateTimeRobot.play();
     }
-    public MainController() {
+    public MainController()
+    {
+
         initTimelineForSmartBoard();
     }
 
     @FXML
-    private void initialize() {
+    private void initialize()
+    {
 
 
         if(!(buttonImageClicked && buttonSmartClicked)){
@@ -120,17 +131,20 @@ public class MainController {
     private void buttonStartController(){
         startClicked = !startClicked;
         repaintRobot();
+        resetClicked = false;
+        stopClicked = false;
     }
     @FXML
     private void buttonStopController(){
         stopClicked = !stopClicked;
-
-
+        startClicked = false;
+        resetClicked = false;
     }
     @FXML
     private void buttonResetController(){
         resetClicked = !resetClicked;
-
+        startClicked = false;
+        stopClicked = false;
 
     }
 
@@ -173,10 +187,9 @@ public class MainController {
             AnchorPane.setRightAnchor(newPanel, 0.0);
 
 
-            createTextView("posX", imageRobot.getLayoutX());
-
-            createTextView("posY",imageRobot.getLayoutY());
-
+            createTextView("posX", Elements.coordinatesX);
+            createTextView("posY", Elements.coordinatesY);
+            createTextView("posZ", Elements.coordinatesZ);
 
             createBooleanView("posC");
             createBooleanView("posG");
@@ -405,7 +418,7 @@ public class MainController {
     @FXML
     private void repaintRobot(){
         if(startClicked){
-            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(300), e -> updateImagePosition()));
+            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> updateImagePosition()));
             timeline.setCycleCount(Animation.INDEFINITE);
             timeline.play();
         }
@@ -427,14 +440,15 @@ public class MainController {
 
 
     private void updateImagePosition() {
-        imageRobot.setLayoutX(290);
-        imageRobot.setLayoutY(290);
-        imageRobot.setRotate(90);
+        imageRobot.setLayoutX(posX);
+        imageRobot.setLayoutY(posY);
+        imageRobot.setRotate(posZ);
     }
 
     private void updateValue(){
-        variablesList.add(imageRobot.getLayoutX());
-        variablesList.add(imageRobot.getLayoutY());
+        variablesList.add(String.format("%.04f", Elements.coordinatesX));
+        variablesList.add(String.format("%.04f", Elements.coordinatesY));
+        variablesList.add(String.format("%.04f", Elements.coordinatesZ));
 
         for (int i = 0; i < views.size(); i++) {
             for (Node node : views.get(i).getChildren()) {
@@ -467,4 +481,40 @@ public class MainController {
         variablesList.clear();
     }
 
+    private void updateRobot()
+    {
+        initRobotElements();
+
+//        posX = Elements.positionRobotX;
+//        posY = Elements.positionRobotY;
+//        posZ = Elements.positionRobotZ;
+
+        if (resetClicked)
+        {
+            posX = 290;
+            posY = 290;
+            posZ = 0;
+            Elements.positionRobotX = 290;
+            Elements.positionRobotY = 290;
+            Elements.positionRobotZ = 0;
+        }
+        else
+        {
+            posX = Elements.positionRobotX;
+            posY = Elements.positionRobotY;
+            posZ = Elements.positionRobotZ;
+        }
+    }
+
+    private void initRobotElements() {
+        new RobotContainer();
+        RobotContainer.el.CalculateCoordinates();
+        RobotContainer.el.changePosition();
+        StateMachine.time += 0.05;
+        sm.Update();
+
+        if (resetClicked) {
+            sm.resetStateMachine();
+        }
+    }
 }
