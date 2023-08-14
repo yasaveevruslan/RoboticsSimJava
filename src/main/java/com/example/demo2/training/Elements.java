@@ -11,6 +11,8 @@ public class Elements
 
     public static int fronteirLeft = 50, fronteirRight = 1043, fronteirUp = 70, fronteirDown = 570;
 
+    public static int frontierX = 0, frontierY = 0;
+
     public void setAxisSpeed(float x, float y, float z)
     {
         if (MainController.stopClicked || MainController.resetClicked)
@@ -43,53 +45,29 @@ public class Elements
         coordinatesZ = z;
     }
 
-    public void changePosition() {
+    public void changePosition()
+    {
 
         positionRobotZ += speedZ;
 
-        int frontierX = 0;
-        int frontierY = 0;
+        boolean zero = Function.InRangeBool(Math.abs(positionRobotZ), 0, 20) || Function.InRangeBool(Math.abs(positionRobotZ), 160, 200);
+        boolean one = Function.InRangeBool(Math.abs(positionRobotZ), 70, 110) || Function.InRangeBool(Math.abs(positionRobotZ), 250, 290);
 
-        if (Function.InRangeBool(Math.abs(positionRobotZ), 0, 20) || Function.InRangeBool(Math.abs(positionRobotZ), 160, 200))
-        {
-            frontierX = 105;
-            frontierY = 100;
-        }
-        else if (Function.InRangeBool(Math.abs(positionRobotZ), 70, 110) || Function.InRangeBool(Math.abs(positionRobotZ), 250, 290))
-        {
-            frontierX = 100;
-            frontierY = 105;
-        }
-        else
-        {
-            frontierX = 110;
-            frontierY = 110;
-        }
+        frontierX = zero ? 105 : one ? 100 : 110;
+        frontierY = zero ? 100 : one ? 105 : 110;
 
-        if ((positionRobotX <= fronteirLeft && speedX < 0))
-        {
-            positionRobotX = fronteirLeft;
-        }
-        else if ((positionRobotX >= fronteirRight - frontierX && speedX > 0))
-        {
-            positionRobotX = fronteirRight - frontierX;
-        }
-        else
-        {
-            positionRobotX += speedX;
-        }
+        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
+        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
 
-        if ((positionRobotY <= fronteirUp && speedY < 0))
-        {
-            positionRobotY = fronteirUp;
-        }
-        else if (positionRobotY >= fronteirDown - frontierY && speedY > 0)
-        {
-            positionRobotY = fronteirDown - frontierY;
-        }
-        else
-        {
-            positionRobotY += speedY;
-        }
+
+    }
+
+    public static float setPosition(float out, float min, float max, float speed)
+    {
+        boolean left = out <= min && speed < 0;
+        boolean right = out >= max && speed > 0;
+
+        out = left ? min : right ? max : out + speed;
+        return out;
     }
 }
