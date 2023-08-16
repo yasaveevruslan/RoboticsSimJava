@@ -184,12 +184,14 @@ public class LogicBorders {
                 double distanceY = Math.abs(centerY - robotPosition.y);
                 double distanceXDownUp = Math.abs(centerX - robotPosition.x);
 
-                boolean isLeft = distanceX < 0 && distanceY <= 36;
+                boolean isLeft = distanceX < 0 && distanceY <= 43;
                 boolean isRight = distanceX > 0 && distanceY <= 100 && distanceY >= -100;
                 boolean isDown = distanceXDownUp <= yThreshold && centerY > posY;
                 boolean isUp = distanceXDownUp <= yThreshold && centerY < posY;
 
                 if (isLeft || isRight || isDown || isUp) {
+
+
                     double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     nearestContours.add(contour);
 
@@ -243,15 +245,18 @@ public class LogicBorders {
         Mat wind;
 
 
-        if(draw){
-            wind = sourceImage.clone();
-            // Отрисовка контуров подходящих по условию
+//        if(draw){
+//            wind = sourceImage.clone();
+//            // Отрисовка контуров подходящих по условию
+//            Scalar contourColor = new Scalar(255, 0, 255);
+//            Imgproc.drawContours(wind, nearestContours, -1, contourColor, 4);
+//        }else{
+//            wind = Imgcodecs.imread(StartApplication.compMatImage()).clone();
+//        }
+        wind = sourceImage.clone();
+//            // Отрисовка контуров подходящих по условию
             Scalar contourColor = new Scalar(255, 0, 255);
             Imgproc.drawContours(wind, nearestContours, -1, contourColor, 4);
-        }else{
-            wind = Imgcodecs.imread(StartApplication.compMatImage()).clone();
-        }
-
         return wind;
     }
 

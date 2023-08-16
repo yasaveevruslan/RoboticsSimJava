@@ -13,6 +13,7 @@ public class States {
                     new Odometry(States.ABSOLUTE_ODOMETRY, 3500, 1000, 180, SmoothEnum.OFF),
                     new Odometry(States.ABSOLUTE_ODOMETRY, 0, 1000, -90, SmoothEnum.OFF),
                     new Odometry(States.ABSOLUTE_ODOMETRY, 0, -1000, 0, SmoothEnum.OFF),
+                    new Odometry(States.ABSOLUTE_ODOMETRY, 5000, -1000, 0, SmoothEnum.OFF),
                     new End(),
             }
     };

@@ -60,8 +60,8 @@ public class StartApplication extends Application {
 
     public static void main(String[] args) {
 
-//        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
-        System.load("D:\\SimJava\\newVersion\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
+        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
+//        System.load("D:\\SimJava\\newVersion\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
         launch();
     }
 }
