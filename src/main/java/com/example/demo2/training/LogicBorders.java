@@ -184,14 +184,14 @@ public class LogicBorders {
                 double distanceY = Math.abs(centerY - robotPosition.y);
                 double distanceXDownUp = Math.abs(centerX - robotPosition.x);
 
-                boolean isLeft = distanceX < 0 && distanceY <= 43;
+//                System.out.println("DistX"+ distanceX);
+//                System.out.println("DistY"+ distanceY);
+                boolean isLeft = distanceX < 0 && Math.abs(distanceY) <= 43 || (centerY < posY);
                 boolean isRight = distanceX > 0 && distanceY <= 100 && distanceY >= -100;
                 boolean isDown = distanceXDownUp <= yThreshold && centerY > posY;
                 boolean isUp = distanceXDownUp <= yThreshold && centerY < posY;
 
-                if (isLeft || isRight || isDown || isUp) {
-
-
+                if (isLeft) {
                     double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     nearestContours.add(contour);
 
@@ -234,6 +234,7 @@ public class LogicBorders {
                 List<MatOfPoint> contours = new ArrayList<>();
                 Mat hierarchy = new Mat();
                 Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
                 return contours;
             }
         }catch (Exception e){
@@ -244,7 +245,7 @@ public class LogicBorders {
     public Mat showFrameContours(List<MatOfPoint> nearestContours, boolean draw){
         Mat wind;
 
-
+        //TODO: исправление логики, которая ниже закоменченна
 //        if(draw){
 //            wind = sourceImage.clone();
 //            // Отрисовка контуров подходящих по условию
@@ -253,13 +254,64 @@ public class LogicBorders {
 //        }else{
 //            wind = Imgcodecs.imread(StartApplication.compMatImage()).clone();
 //        }
+
         wind = sourceImage.clone();
-//            // Отрисовка контуров подходящих по условию
-            Scalar contourColor = new Scalar(255, 0, 255);
-            Imgproc.drawContours(wind, nearestContours, -1, contourColor, 4);
+
+        Scalar contourColor = new Scalar(255, 0, 255);
+        Imgproc.drawContours(wind, nearestContours, -1, contourColor, 4);
+        drawFigureRobot(wind, nearestContours);
+
         return wind;
     }
 
+    private void drawFigureRobot(Mat wind, List<MatOfPoint> contours){
+
+
+        for (MatOfPoint contour : contours) {
+
+            boolean bool = isAnyPointInsideHexagon(wind,contour);
+           if(bool){
+               System.out.println(true);
+           }
+        }
+    }
+
+
+    public boolean isAnyPointInsideHexagon(Mat wind, MatOfPoint contour) {
+        double hexagonRadius = 55;
+
+        int robotCenterX = (int) Elements.positionRobotX;
+        int robotCenterY = (int) Elements.positionRobotY-26;
+        Point hexagonCenter = new Point(robotCenterX, robotCenterY);
+
+        // Определение координат вершин шестиугольника
+        Point[] hexagonPoints = new Point[6];
+        for (int i = 0; i < 6; i++) {
+            double angle = 2 * Math.PI / 6 * i;
+            double x = hexagonCenter.x + hexagonRadius * Math.cos(angle);
+            double y = hexagonCenter.y + hexagonRadius * Math.sin(angle);
+            hexagonPoints[i] = new Point(x, y);
+        }
+        MatOfPoint2f hexagon2f = new MatOfPoint2f(hexagonPoints);
+        MatOfPoint hexagon = new MatOfPoint(hexagonPoints);
+
+        List<MatOfPoint> hexagonFill = new ArrayList<>();
+        hexagonFill.add(hexagon);
+
+        // Цвет(красный)
+        Scalar fillColor = new Scalar(0, 0, 255);
+
+        // Закрашиваем шестиугольник
+        Imgproc.fillPoly(wind, hexagonFill, fillColor);
+
+        for (Point wallPoint : contour.toArray()) {
+            double distance = Imgproc.pointPolygonTest(hexagon2f, new Point(wallPoint.x, wallPoint.y), true);
+            if (distance >= -17) {
+                return true; // Если хотя бы одна точка контура внутри шестиугольника
+            }
+        }
+        return  false;
+    }
     public boolean compareContour(List<MatOfPoint> nearestContours){
         if(lastContours.isEmpty()){
             lastContours = nearestContours;
@@ -292,5 +344,6 @@ public class LogicBorders {
             }
         }
     }
+
 
 }
