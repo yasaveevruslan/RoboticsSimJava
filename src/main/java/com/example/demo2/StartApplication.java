@@ -60,8 +60,19 @@ public class StartApplication extends Application {
 
     public static void main(String[] args) {
 
-        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
-//        System.load("D:\\SimJava\\newVersion\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
+//        System.load("C:\\Users\\Monbe\\IdeaProjects\\Sim\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
+        System.load("D:\\SimJava\\newVersion\\RoboticsSimJava\\src\\main\\java\\com\\example\\demo2\\opencv_java440.dll");
         launch();
+    }
+
+
+    public static boolean[][] masCort = new boolean[998][500];
+    public static void search()
+    {
+        for (int i = 0; i < 998; i ++){
+            for (int j = 0; j < 500; j++){
+
+            }
+        }
     }
 }
