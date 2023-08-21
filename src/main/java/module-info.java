@@ -8,6 +8,8 @@ module com.example.demo2 {
     requires com.jfoenix;
     requires opencv;
     requires de.jensd.fx.glyphs.fontawesome;
+    requires java.desktop;
+    requires jdk.jlink;
 
     opens com.example.demo2 to javafx.fxml;
     exports com.example.demo2;

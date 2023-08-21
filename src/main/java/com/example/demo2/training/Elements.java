@@ -13,6 +13,8 @@ public class Elements
 
     public static int frontierX = 0, frontierY = 0;
 
+    public static float disUp, disDown, disRight, disLeft = 0;
+
     public void setAxisSpeed(float x, float y, float z)
     {
         if (MainController.stopClicked || MainController.resetClicked)
@@ -35,6 +37,7 @@ public class Elements
         coordinatesX += speedX * 4;
         coordinatesY += speedY * 4;
         coordinatesZ += speedZ;
+
 
     }
 

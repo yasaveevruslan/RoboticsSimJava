@@ -163,10 +163,10 @@ public class LogicBorders {
 
     public List<MatOfPoint> calculateBorders(int posX, int posY) {
 
-        double distanceUp = 0.0;
-        double distanceDown = 0.0;
-        double distanceRight = 0.0;
-        double distanceLeft = 0.0;
+        float distanceUp = 0.0f;
+        float distanceDown = 0.0f;
+        float distanceRight = 0.0f;
+        float distanceLeft = 0.0f;
 
         List<MatOfPoint> nearestContours = new ArrayList<>();
 
@@ -191,25 +191,28 @@ public class LogicBorders {
 
                 if (isLeft || isRight || isDown || isUp) {
 
-
                     double distance = Math.sqrt(Math.pow(centerX - robotPosition.x, 2) + Math.pow(centerY - robotPosition.y, 2));
                     nearestContours.add(contour);
 
                     if (isLeft) {
-                        distanceLeft = Math.min(distanceLeft, distance);
+                        distanceLeft = (float) Math.min(distanceLeft, distance);
                     } else if (isRight) {
-                        distanceRight = Math.min(distanceRight, distance);
+                        distanceRight = (float) Math.min(distanceRight, distance);
                     } else if (isDown) {
-                        distanceDown = Math.min(distanceDown, distance);
+                        distanceDown = (float) Math.min(distanceDown, distance);
                     } else if (isUp) {
-                        distanceUp = Math.min(distanceUp, distance);
+                        distanceUp = (float) Math.min(distanceUp, distance);
                     }
                 }
             }
-//                    Elements.disUp = distanceUp;
-//        Elements.disDown = distanceDown;
-//        Elements.disRight = distanceRight;
-//        Elements.disLeft = distanceLeft;
+
+            Elements.disUp = distanceUp;
+            Elements.disDown = distanceDown;
+            Elements.disRight = distanceRight;
+            Elements.disLeft = distanceLeft;
+
+            System.out.println(distanceUp + " " + distanceDown + " " + distanceRight + " " + distanceLeft);
+
             return nearestContours;
         } catch (Exception e) {
             e.printStackTrace();
