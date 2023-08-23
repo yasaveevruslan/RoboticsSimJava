@@ -1,6 +1,8 @@
 package com.example.demo2.training;
 
+import com.example.demo2.StartApplication;
 import javafx.animation.*;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Pos;
@@ -26,16 +28,28 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 import de.jensd.fx.glyphs.fontawesome.*;
+
+import javax.imageio.ImageIO;
 
 public class MainController {
     @FXML
@@ -77,6 +91,8 @@ public class MainController {
 
     private float posX = 290, posY = 290, posZ = 0;
 
+    public static int[][] Array2DCort, Array2DRobot;
+
     public StateMachine sm = new StateMachine();
 
 
@@ -92,6 +108,10 @@ public class MainController {
         Timeline updateTimeRobot = new Timeline(new KeyFrame(Duration.millis(50), e -> updateRobot()));
         updateTimeRobot.setCycleCount(Animation.INDEFINITE);
         updateTimeRobot.play();
+
+        Timeline updateCort = new Timeline(new KeyFrame(Duration.millis(200), e -> initCort()));
+        updateCort.setCycleCount(Animation.INDEFINITE);
+        updateCort.play();
     }
     public MainController()
     {
@@ -227,6 +247,7 @@ public class MainController {
     @FXML
     private void actionWithImageContours(){
 
+//        ImageView img = new ImageView();
         ImageView img = new ImageView();
 
         if(buttonSmartClicked){
@@ -254,6 +275,8 @@ public class MainController {
                 img.setFitHeight(400);
 
             });
+
+
 
             AnchorPane.setTopAnchor(img, 50.0);
             AnchorPane.setLeftAnchor(img, 50.0);
@@ -485,10 +508,6 @@ public class MainController {
     {
         initRobotElements();
 
-//        posX = Elements.positionRobotX;
-//        posY = Elements.positionRobotY;
-//        posZ = Elements.positionRobotZ;
-
         if (resetClicked)
         {
             posX = 290;
@@ -506,15 +525,200 @@ public class MainController {
         }
     }
 
-    private void initRobotElements() {
+    private void initRobotElements()
+    {
         new RobotContainer();
         RobotContainer.el.CalculateCoordinates();
         RobotContainer.el.changePosition();
         StateMachine.time += 0.05;
         sm.Update();
 
-        if (resetClicked) {
+        if (resetClicked)
+        {
             sm.resetStateMachine();
+        }
+    }
+
+    private void initCort()
+    {
+        try
+        {
+            generation2DArrays();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /*
+        Инициализация работы с симуляцией и генерацией поля
+    */
+    public void generation2DArrays() throws IOException
+    {
+
+        try
+        {
+            StartApplication.imgCort = ImageIO.read(new File("src/main/resources/com/example/demo2/paint.png"));
+
+            StartApplication.imgRobot = rotateImageByDegrees(SwingFXUtils.fromFXImage(imageRobot.getImage(), null), posZ);
+
+            File outfile = new File("original.png");
+            ImageIO.write(StartApplication.imgRobot, "png", outfile);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        Array2DCort = new int[StartApplication.imgCort.getHeight()][StartApplication.imgCort.getWidth()];
+        Array2DRobot = new int[StartApplication.imgRobot.getHeight()][StartApplication.imgRobot.getWidth()];
+        assert StartApplication.imgCort != null;
+        assert StartApplication.imgRobot != null;
+        Array2DCort = get2DPixelArraySlow(StartApplication.imgCort, 1);
+        Array2DRobot = get2DPixelArraySlow(StartApplication.imgRobot, -1);
+
+        union2DArray(Array2DCort, Array2DRobot);
+        change2DPixelArrayInImage(Array2DCort, "cort.png");
+        change2DPixelArrayInImage(Array2DRobot, "robotPaint.png");
+    }
+
+    /*
+        Вращение изображения для синхронизации с реальным роботом (BufferedImage)
+    */
+    public BufferedImage rotateImageByDegrees(BufferedImage img, double angle)
+    {
+
+        double rads = Math.toRadians(angle);
+
+        int w = img.getWidth();
+        int h = img.getHeight();
+
+        int newWidth = w;
+        int newHeight = h;
+
+        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotated.createGraphics();
+        AffineTransform at = new AffineTransform();
+        at.translate((double) (newWidth - w) / 2, (double) (newHeight - h) / 2);
+
+        int x = w / 2;
+        int y = h / 2;
+
+        at.rotate(rads, x, y);
+        g2d.setTransform(at);
+        g2d.drawImage(img, 0, 0, null);
+        g2d.dispose();
+
+        return rotated;
+    }
+
+
+    /*
+        получение двумерного массива из изображения (BufferedImage)
+    */
+    public int[][] get2DPixelArraySlow(BufferedImage sampleImage, int mode)
+    {
+        int width = sampleImage.getWidth();
+        int height = sampleImage.getHeight();
+        int[][] result = new int[height][width];
+
+        for (int row = 0; row < height; row++)
+        {
+            for (int col = 0; col < width; col++)
+            {
+                int color = 0;
+                if (sampleImage.getRGB(col, row) < -1)
+                {
+                    color = 1;
+                }
+                else if (sampleImage.getRGB(col, row) >= -1)
+                {
+                    color = 0;
+                }
+                else
+                {
+                    color = -1;
+                }
+                result[row][col] = color  * mode;
+            }
+        }
+        return result;
+    }
+
+    /*
+        преобразование двумерного массива в картинку с сохранением в файл с именем
+    */
+    public void change2DPixelArrayInImage(int[][] mas, String name) throws IOException
+    {
+
+        int h = mas.length;
+        int w = mas[0].length;
+
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+
+        java.awt.Color color = java.awt.Color.BLUE;
+        for (int row = 0; row < h; row++)
+        {
+            for (int col = 0; col < w; col++)
+            {
+                if (mas[row][col] == -1)
+                {
+                    color = java.awt.Color.BLUE;
+                }
+                else if (mas[row][col] == 1)
+                {
+                    color = java.awt.Color.BLACK;
+                }
+                else
+                {
+                    color = java.awt.Color.WHITE;
+                }
+                image.setRGB(col, row, color.getRGB());
+
+            }
+        }
+
+        File outfile = new File(name);
+        ImageIO.write(image, "png", outfile);
+    }
+
+    /*
+        сохранение массива с указанным именем в текстовый документ
+    */
+    public void addPixelInTXTDoc(int[][] mas, String name) throws IOException
+    {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(name)));
+        for (int[] i : mas)
+        {
+            String stuffToWrite = Arrays.toString(i);
+            writer.write(stuffToWrite + '\n');
+        }
+        writer.close();
+    }
+
+
+    /*
+        объединение массива поля и массива робота в единый массив
+    */
+    public void union2DArray(int[][] firstMas, int[][] secondMas)
+    {
+        int first, second = 0;
+
+        for (int i = 0; i < secondMas.length; i++)
+        {
+            for (int j = 0; j < secondMas[0].length; j++)
+            {
+                first = (int) (Elements.positionRobotY - 70 + i);
+                second = (int) (Elements.positionRobotX - 45 + j);
+
+                if (firstMas[first][second] != secondMas[i][j] && firstMas[first][second] != 1)
+//                if (firstMas[first][second] != secondMas[i][j] && secondMas[i][j] == -1)
+                {
+                    firstMas[first][second] = secondMas[i][j];
+                }
+            }
         }
     }
 }

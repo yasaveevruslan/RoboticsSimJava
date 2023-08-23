@@ -161,12 +161,14 @@ public class LogicBorders {
 //        Elements.disLeft = distance;
     }
 
+    public float distanceUp = 0.0f;
+    public float distanceDown = 0.0f;
+    public float distanceRight = 0.0f;
+    public float distanceLeft = 0.0f;
+
     public List<MatOfPoint> calculateBorders(int posX, int posY) {
 
-        float distanceUp = 0.0f;
-        float distanceDown = 0.0f;
-        float distanceRight = 0.0f;
-        float distanceLeft = 0.0f;
+
 
         List<MatOfPoint> nearestContours = new ArrayList<>();
 

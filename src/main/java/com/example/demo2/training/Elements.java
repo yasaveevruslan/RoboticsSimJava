@@ -9,7 +9,7 @@ public class Elements
 
     public static float positionRobotX = 290, positionRobotY = 290, positionRobotZ = 0;
 
-    public static int fronteirLeft = 50, fronteirRight = 1043, fronteirUp = 70, fronteirDown = 570;
+    public static int fronteirLeft = 45, fronteirRight = 1045, fronteirUp = 70, fronteirDown = 570;
 
     public static int frontierX = 0, frontierY = 0;
 
@@ -56,7 +56,7 @@ public class Elements
         boolean zero = Function.InRangeBool(Math.abs(positionRobotZ), 0, 20) || Function.InRangeBool(Math.abs(positionRobotZ), 160, 200);
         boolean one = Function.InRangeBool(Math.abs(positionRobotZ), 70, 110) || Function.InRangeBool(Math.abs(positionRobotZ), 250, 290);
 
-        frontierX = zero ? 105 : one ? 100 : 110;
+        frontierX = zero ? 95 : one ? 100 : 110;
         frontierY = zero ? 100 : one ? 105 : 110;
 
         positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
