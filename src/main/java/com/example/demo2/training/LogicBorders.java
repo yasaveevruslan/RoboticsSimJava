@@ -208,12 +208,12 @@ public class LogicBorders {
                 }
             }
 
-            Elements.disUp = distanceUp;
-            Elements.disDown = distanceDown;
-            Elements.disRight = distanceRight;
-            Elements.disLeft = distanceLeft;
+//            Elements.disUp = distanceUp;
+//            Elements.disDown = distanceDown;
+//            Elements.disRight = distanceRight;
+//            Elements.disLeft = distanceLeft;
 
-            System.out.println(distanceUp + " " + distanceDown + " " + distanceRight + " " + distanceLeft);
+//            System.out.println(distanceUp + " " + distanceDown + " " + distanceRight + " " + distanceLeft);
 
             return nearestContours;
         } catch (Exception e) {

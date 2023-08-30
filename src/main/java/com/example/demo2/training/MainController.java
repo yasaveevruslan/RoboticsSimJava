@@ -26,13 +26,10 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -91,7 +88,7 @@ public class MainController {
 
     private float posX = 290, posY = 290, posZ = 0;
 
-    public static int[][] Array2DCort, Array2DRobot;
+    public static int[][] Array2DCort, Array2DRobot, Array2DContour, Array2DContourSecond;
 
     public StateMachine sm = new StateMachine();
 
@@ -210,6 +207,12 @@ public class MainController {
             createTextView("posX", Elements.coordinatesX);
             createTextView("posY", Elements.coordinatesY);
             createTextView("posZ", Elements.coordinatesZ);
+            createTextView("index", StateMachine.currentindex);
+
+            createTextView("IR_Front", Elements.irFront);
+            createTextView("IR_Back", Elements.irBack);
+            createTextView("US_Front", Elements.usFront);
+            createTextView("US_Right", Elements.usRight);
 
             createBooleanView("posC");
             createBooleanView("posG");
@@ -268,12 +271,16 @@ public class MainController {
             newPanel.getChildren().clear();
 
             repaintImageBorders((processedImage) -> {
-                Image image = new Image(processedImage);
+//                Image image = new Image(processedImage);
+//                img.setImage(image);
+//                img.setBlendMode(BlendMode.DIFFERENCE);
+//                img.setFitWidth(600);
+//                img.setFitHeight(400);
+                Image image = new Image("D:\\SimJava\\newVersion\\RoboticsSimJava\\cort.png");
                 img.setImage(image);
                 img.setBlendMode(BlendMode.DIFFERENCE);
-                img.setFitWidth(600);
-                img.setFitHeight(400);
-
+                img.setFitWidth(998 * 0.6);
+                img.setFitHeight(500 * 0.6);
             });
 
 
@@ -383,7 +390,7 @@ public class MainController {
     }
 
     private String matToImage(Mat mat) {
-        String fileName = "im.png";
+        String fileName = "cort.png";
 
         try {
 
@@ -391,7 +398,7 @@ public class MainController {
             // Преобразование пути в строку
             String url = imagePath.toString();
             // Запись файла
-            Imgcodecs.imwrite(url, mat);
+//            Imgcodecs.imwrite(url, mat);
 
             return url;
         } catch (URISyntaxException e) {
@@ -472,6 +479,12 @@ public class MainController {
         variablesList.add(String.format("%.04f", Elements.coordinatesX));
         variablesList.add(String.format("%.04f", Elements.coordinatesY));
         variablesList.add(String.format("%.04f", Elements.coordinatesZ));
+        variablesList.add(String.valueOf(StateMachine.currentindex));
+
+        variablesList.add(String.format("%.04f", Elements.irFront));
+        variablesList.add(String.format("%.04f", Elements.irBack));
+        variablesList.add(String.format("%.04f", Elements.usFront));
+        variablesList.add(String.format("%.04f", Elements.usRight));
 
         for (int i = 0; i < views.size(); i++) {
             for (Node node : views.get(i).getChildren()) {
@@ -529,6 +542,7 @@ public class MainController {
     {
         new RobotContainer();
         RobotContainer.el.CalculateCoordinates();
+        RobotContainer.el.CalculateSensors();
         RobotContainer.el.changePosition();
         StateMachine.time += 0.05;
         sm.Update();
@@ -574,14 +588,25 @@ public class MainController {
 
         Array2DCort = new int[StartApplication.imgCort.getHeight()][StartApplication.imgCort.getWidth()];
         Array2DRobot = new int[StartApplication.imgRobot.getHeight()][StartApplication.imgRobot.getWidth()];
+
         assert StartApplication.imgCort != null;
         assert StartApplication.imgRobot != null;
+
         Array2DCort = get2DPixelArraySlow(StartApplication.imgCort, 1);
         Array2DRobot = get2DPixelArraySlow(StartApplication.imgRobot, -1);
 
         union2DArray(Array2DCort, Array2DRobot);
+
+        Array2DContour = limitPositionOnX(Array2DCort);
+        Array2DContourSecond = limitPositionOnY(Array2DCort);
+
+//        limitPositionOnY(Array2DCort);
+
         change2DPixelArrayInImage(Array2DCort, "cort.png");
         change2DPixelArrayInImage(Array2DRobot, "robotPaint.png");
+        change2DPixelArrayInImage(Array2DContour, "robotContour.png");
+        change2DPixelArrayInImage(Array2DContourSecond, "robotContourSecond.png");
+
     }
 
     /*
@@ -595,13 +620,10 @@ public class MainController {
         int w = img.getWidth();
         int h = img.getHeight();
 
-        int newWidth = w;
-        int newHeight = h;
-
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = rotated.createGraphics();
         AffineTransform at = new AffineTransform();
-        at.translate((double) (newWidth - w) / 2, (double) (newHeight - h) / 2);
+        at.translate((double) (0) / 2, (double) (0) / 2);
 
         int x = w / 2;
         int y = h / 2;
@@ -628,7 +650,7 @@ public class MainController {
         {
             for (int col = 0; col < width; col++)
             {
-                int color = 0;
+                int color = 9;
                 if (sampleImage.getRGB(col, row) < -1)
                 {
                     color = 1;
@@ -713,12 +735,192 @@ public class MainController {
                 first = (int) (Elements.positionRobotY - 70 + i);
                 second = (int) (Elements.positionRobotX - 45 + j);
 
+                /*
+                * добавление массива с роботом под стенки
+                */
                 if (firstMas[first][second] != secondMas[i][j] && firstMas[first][second] != 1)
-//                if (firstMas[first][second] != secondMas[i][j] && secondMas[i][j] == -1)
+
+                /*
+                 * добавление массива с роботом под стенки
+                 * if (firstMas[first][second] != secondMas[i][j] && secondMas[i][j] == -1)
+                 */
+
                 {
                     firstMas[first][second] = secondMas[i][j];
                 }
             }
         }
+    }
+
+
+    public int[][] limitPositionOnX(int[][] mas)
+    {
+
+        float distanceLeft = 9999, distanceRight = 9999;
+
+        float startPosition = posX - 120 > 0 ?  posX - 120 : 0;
+        float endPosition = posX + 180 < 998 ? posX + 180 : 998;
+
+        int[][] newArray = new int[105][300];
+
+
+
+        for (int i = (int) posY - 70; i < (int) posY + 35; i ++)
+        {
+            boolean stopLeft = true, stopRight = true;
+            int calculateLeft = 0, calculateRight = 0;
+
+            for (int j = (int) startPosition; j < endPosition; j ++)
+            {
+                if (mas[i][j] != -1 && stopLeft)
+                {
+                    if (mas[i][j] == 1)
+                    {
+                        calculateLeft = 0;
+                        Elements.limitLeft = j + 45;
+                    }
+                    else
+                    {
+                        calculateLeft ++;
+                    }
+                }
+                else
+                {
+                    if (distanceLeft > calculateLeft){
+                        distanceLeft = calculateLeft;
+                    }
+                    stopLeft = false;
+                }
+
+
+                if (!stopRight)
+                {
+                    if (mas[i][j] == -1)
+                    {
+                        calculateRight = 0;
+                    }
+                    else
+                    {
+                        calculateRight ++;
+                    }
+
+                    if (mas[i][j] == 1)
+                    {
+                        Elements.limitRight = j + 45;
+
+                        if (distanceRight > calculateRight)
+                        {
+                            distanceRight = calculateRight;
+                            stopRight = true;
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (mas[i][j] == -1)
+                    {
+                    stopRight = false;
+                    }
+                }
+
+                newArray[ i - (int)(posY - 70)][(int) (j - startPosition)] = mas[i][j];
+
+            }
+
+        }
+
+//        System.out.println(distanceLeft + " " + distanceRight);
+
+        Elements.distanceLeft = distanceLeft;
+        Elements.distanceRight = distanceRight;
+
+        return newArray;
+//        System.out.println(startPosition + " " + endPosition + " " + (posY - 70) + " " + (posY + 35));
+    }
+
+
+    public int[][] limitPositionOnY(int[][] mas)
+    {
+
+        float distanceUp = 9999, distanceDown = 9999;
+
+        float startPosition = posY - 140 > 0 ?  posY - 140 : 0;
+        float endPosition = posY + 160 < 500 ? posY + 160 : 500;
+
+        int[][] newArray = new int[300][105];
+
+        for (int i = (int) (posX - 45); i < (int)(posX + 60); i ++)
+        {
+
+            boolean stopUp = true, stopDown = true;
+            int calculateUp = 0, calculateDown = 0;
+
+            for (int j = (int) startPosition; j < endPosition; j ++)
+            {
+
+//                newArray[(int) (j - startPosition)][i - (int)(posX - 45)] = mas[j][i];
+                if (mas[j][i] != -1 && stopUp)
+                {
+                    if (mas[j][i] == 1)
+                    {
+                        calculateUp = 0;
+                        Elements.limitUp = j + 70;
+                    }
+                    else
+                    {
+                        calculateUp ++;
+                    }
+                }
+                else
+                {
+                    if (distanceUp > calculateUp){
+                        distanceUp = calculateUp;
+                    }
+                    stopUp = false;
+                }
+
+                if (!stopDown)
+                {
+                    if (mas[j][i] == -1)
+                    {
+                        calculateDown = 0;
+                    }
+                    else
+                    {
+                        calculateDown ++;
+                    }
+
+                    if (mas[j][i] == 1)
+                    {
+
+                        Elements.limitDown = j + 70;
+
+                        if (distanceDown > calculateDown)
+                        {
+                            distanceDown = calculateDown;
+                            stopDown = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (mas[j][i] == -1)
+                    {
+                        stopDown = false;
+                    }
+                }
+            }
+        }
+
+        Elements.distanceUp = distanceUp;
+        Elements.distanceDown = distanceDown;
+
+//        System.out.println(distanceUp + " " + distanceDown);
+
+//        System.out.println(startPosition + " " + endPosition + " " + (int)(posX - 45) + " " + (int)(posX + 60));
+
+        return newArray;
+
     }
 }
