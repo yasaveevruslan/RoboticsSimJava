@@ -813,6 +813,11 @@ public class MainController {
                             distanceRight = calculateRight;
                             stopRight = true;
                         }
+                        else
+                        {
+                            distanceRight = 1043 - j;
+                        }
+
                     }
 
                 }
@@ -820,7 +825,8 @@ public class MainController {
                 {
                     if (mas[i][j] == -1)
                     {
-                    stopRight = false;
+
+                        stopRight = false;
                     }
                 }
 
@@ -902,11 +908,14 @@ public class MainController {
                             stopDown = true;
                         }
                     }
+
                 }
                 else
                 {
                     if (mas[j][i] == -1)
                     {
+                        distanceDown = 570 - j;
+
                         stopDown = false;
                     }
                 }
