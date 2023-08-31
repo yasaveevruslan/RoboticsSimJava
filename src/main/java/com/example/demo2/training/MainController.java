@@ -597,15 +597,19 @@ public class MainController {
 
         union2DArray(Array2DCort, Array2DRobot);
 
-        Array2DContour = limitPositionOnX(Array2DCort);
-        Array2DContourSecond = limitPositionOnY(Array2DCort);
+//        Array2DContour = limitPositionOnX(Array2DCort);
+//        Array2DContourSecond = limitPositionOnY(Array2DCort);
+
+        limitPositionOnX(Array2DCort);
+        limitPositionOnY(Array2DCort);
 
 //        limitPositionOnY(Array2DCort);
 
         change2DPixelArrayInImage(Array2DCort, "cort.png");
         change2DPixelArrayInImage(Array2DRobot, "robotPaint.png");
-        change2DPixelArrayInImage(Array2DContour, "robotContour.png");
-        change2DPixelArrayInImage(Array2DContourSecond, "robotContourSecond.png");
+
+//        change2DPixelArrayInImage(Array2DContour, "robotContour.png");
+//        change2DPixelArrayInImage(Array2DContourSecond, "robotContourSecond.png");
 
     }
 
@@ -753,7 +757,7 @@ public class MainController {
     }
 
 
-    public int[][] limitPositionOnX(int[][] mas)
+    public void limitPositionOnX(int[][] mas)
     {
 
         float distanceLeft = 9999, distanceRight = 9999;
@@ -761,9 +765,9 @@ public class MainController {
         float startPosition = posX - 120 > 0 ?  posX - 120 : 0;
         float endPosition = posX + 180 < 998 ? posX + 180 : 998;
 
-        int[][] newArray = new int[105][300];
+        float minBlue = 9999, maxBlue = 0;
 
-
+        int limitLeft = 45, limitRight = 1043;
 
         for (int i = (int) posY - 70; i < (int) posY + 35; i ++)
         {
@@ -772,24 +776,34 @@ public class MainController {
 
             for (int j = (int) startPosition; j < endPosition; j ++)
             {
-                if (mas[i][j] != -1 && stopLeft)
+                if (!stopLeft)
                 {
                     if (mas[i][j] == 1)
                     {
+                        limitLeft = j;
                         calculateLeft = 0;
-                        Elements.limitLeft = j + 45;
                     }
                     else
                     {
                         calculateLeft ++;
                     }
+
+                    if (mas[i][j] == -1)
+                    {
+
+                        if (distanceLeft > calculateLeft)
+                        {
+                            distanceLeft = calculateLeft;
+                            stopLeft = true;
+                        }
+                    }
                 }
                 else
                 {
-                    if (distanceLeft > calculateLeft){
-                        distanceLeft = calculateLeft;
+                    if (mas[i][j] == 1)
+                    {
+                        stopLeft = false;
                     }
-                    stopLeft = false;
                 }
 
 
@@ -806,7 +820,8 @@ public class MainController {
 
                     if (mas[i][j] == 1)
                     {
-                        Elements.limitRight = j + 45;
+
+                        limitRight = j;
 
                         if (distanceRight > calculateRight)
                         {
@@ -814,33 +829,33 @@ public class MainController {
                             stopRight = true;
                         }
                     }
-
                 }
                 else
                 {
                     if (mas[i][j] == -1)
                     {
-                    stopRight = false;
+                        stopRight = false;
                     }
                 }
 
-                newArray[ i - (int)(posY - 70)][(int) (j - startPosition)] = mas[i][j];
-
+                if (mas[i][j] == -1)
+                {
+                    maxBlue = j > maxBlue ? j : maxBlue;
+                    minBlue = j < minBlue ? j : minBlue;
+                }
             }
 
         }
 
-//        System.out.println(distanceLeft + " " + distanceRight);
+        Elements.distanceLeft = distanceLeft == 9999 ? minBlue : distanceLeft;
+        Elements.distanceRight = distanceRight == 9999 ? 998 - maxBlue : distanceRight;
 
-        Elements.distanceLeft = distanceLeft;
-        Elements.distanceRight = distanceRight;
-
-        return newArray;
-//        System.out.println(startPosition + " " + endPosition + " " + (posY - 70) + " " + (posY + 35));
+        Elements.limitLeft = limitLeft;
+        Elements.limitRight = limitRight;
     }
 
 
-    public int[][] limitPositionOnY(int[][] mas)
+    public void limitPositionOnY(int[][] mas)
     {
 
         float distanceUp = 9999, distanceDown = 9999;
@@ -848,7 +863,9 @@ public class MainController {
         float startPosition = posY - 140 > 0 ?  posY - 140 : 0;
         float endPosition = posY + 160 < 500 ? posY + 160 : 500;
 
-        int[][] newArray = new int[300][105];
+        float minBlue = 9999, maxBlue = 0;
+
+        int limitUp = 70, limitDown = 570;
 
         for (int i = (int) (posX - 45); i < (int)(posX + 60); i ++)
         {
@@ -859,25 +876,35 @@ public class MainController {
             for (int j = (int) startPosition; j < endPosition; j ++)
             {
 
-//                newArray[(int) (j - startPosition)][i - (int)(posX - 45)] = mas[j][i];
-                if (mas[j][i] != -1 && stopUp)
+                if (!stopUp)
                 {
                     if (mas[j][i] == 1)
                     {
+                        limitUp = j;
                         calculateUp = 0;
-                        Elements.limitUp = j + 70;
                     }
                     else
                     {
                         calculateUp ++;
                     }
+
+                    if (mas[j][i] == -1)
+                    {
+
+                        if (distanceUp > calculateUp)
+                        {
+                            distanceUp = calculateUp;
+                            stopUp = true;
+                        }
+                    }
+
                 }
                 else
                 {
-                    if (distanceUp > calculateUp){
-                        distanceUp = calculateUp;
+                    if (mas[j][i] == 1)
+                    {
+                        stopUp = false;
                     }
-                    stopUp = false;
                 }
 
                 if (!stopDown)
@@ -890,11 +917,9 @@ public class MainController {
                     {
                         calculateDown ++;
                     }
-
                     if (mas[j][i] == 1)
                     {
-
-                        Elements.limitDown = j + 70;
+                        limitDown = j;
 
                         if (distanceDown > calculateDown)
                         {
@@ -902,6 +927,7 @@ public class MainController {
                             stopDown = true;
                         }
                     }
+
                 }
                 else
                 {
@@ -910,17 +936,20 @@ public class MainController {
                         stopDown = false;
                     }
                 }
+
+                if (mas[j][i] == -1)
+                {
+                    maxBlue = j > maxBlue ? j : maxBlue;
+                    minBlue = j < minBlue ? j : minBlue;
+                }
             }
         }
 
-        Elements.distanceUp = distanceUp;
-        Elements.distanceDown = distanceDown;
+        Elements.distanceUp = distanceUp == 9999 ? minBlue : distanceUp;
+        Elements.distanceDown = distanceDown == 9999 ? 500 - maxBlue : distanceDown;
 
-//        System.out.println(distanceUp + " " + distanceDown);
-
-//        System.out.println(startPosition + " " + endPosition + " " + (int)(posX - 45) + " " + (int)(posX + 60));
-
-        return newArray;
+        Elements.limitUp = limitUp;
+        Elements.limitDown = limitDown;
 
     }
 }

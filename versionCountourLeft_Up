@@ -1,0 +1,43 @@
+// LEFT //
+if (mas[i][j] != -1 && stopLeft)
+{
+    if (mas[i][j] == 1)
+    {
+        calculateLeft = 0;
+        Elements.limitLeft = j + 45;
+    }
+    else
+    {
+        calculateLeft ++;
+    }
+}
+else
+{
+    if (distanceLeft > calculateLeft)
+    {
+        distanceLeft = calculateLeft;
+    }
+    stopLeft = false;
+}
+
+
+// UP //
+if (mas[j][i] != -1 && stopUp)
+{
+    if (mas[j][i] == 1)
+    {
+        calculateUp = 0;
+        Elements.limitUp = j + 70;
+    }
+    else
+    {
+        calculateUp ++;
+    }
+}
+else
+{
+    if (distanceUp > calculateUp){
+        distanceUp = calculateUp;
+    }
+    stopUp = false;
+}

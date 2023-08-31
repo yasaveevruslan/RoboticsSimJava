@@ -46,11 +46,11 @@ public class Elements
     */
     public void CalculateCoordinates()
     {
+
         coordinatesX += speedX * 4;
         coordinatesY += speedY * 4;
         coordinatesZ += speedZ;
 
-        System.out.println(limitUp + " " + limitDown + " " + limitLeft + " " + limitRight);
     }
 
     /*
@@ -58,15 +58,65 @@ public class Elements
     */
     public void CalculateSensors()
     {
-        irFront = distanceUp * 4;
-        irBack = distanceUp * 4;
-        usFront = distanceRight * 4;
-        usRight = distanceDown * 4;
+        irFront = (calculatePositionSensors(0) * 4) / 10;
+        irBack = (calculatePositionSensors(0) * 4) / 10;
+        usFront = (calculatePositionSensors(1) * 4) / 10;
+        usRight = (calculatePositionSensors(2) * 4) / 10;
+
+        System.out.println(limitUp + " " + limitDown + " " + limitLeft + " " + limitRight);
+
     }
 
-    public static float calculatePositionSensors()
+    public static float calculatePositionSensors(int element)
     {
-       return 0;
+
+        int position = 0;
+
+        float distance = 0;
+        if  (   Function.InRangeBool(positionRobotZ, -45, 45) ||
+                Function.InRangeBool(positionRobotZ, 315, 405) ||
+                Function.InRangeBool(positionRobotZ, -405, -315)
+            )
+        {
+            position = 0;
+        }
+        else if (   Function.InRangeBool(positionRobotZ, 45, 135) ||
+                    Function.InRangeBool(positionRobotZ, -315, -225)
+                )
+        {
+            position = 1;
+        }
+        else if (   Function.InRangeBool(positionRobotZ, 135, 225) ||
+                    Function.InRangeBool(positionRobotZ, -225, -135)
+                )
+        {
+            position = 2;
+        }
+        else if (   Function.InRangeBool(positionRobotZ, 225, 315) ||
+                    Function.InRangeBool(positionRobotZ, -135, -45)
+                )
+        {
+            position = 3;
+        }
+
+
+
+        if ((position + element) == 0 || (position + element) == 4)
+        {
+            distance = distanceUp;
+        }
+        else if ((position + element) == 1 || (position + element) == 5)
+        {
+            distance = distanceRight;
+        } else if ((position + element) == 2 || (position + element) == 6)
+        {
+            distance = distanceDown;
+        }
+        else if ((position + element) == 3)
+        {
+            distance = distanceLeft;
+        }
+        return distance;
     }
 
     /*
@@ -91,11 +141,11 @@ public class Elements
         frontierX = 105;
         frontierY = 105;
 
-//        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
-//        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
+        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
+        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
 
-        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
-        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
+//        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
+//        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
     }
 
     /*
