@@ -21,6 +21,7 @@ else
 }
 
 
+
 // UP //
 if (mas[j][i] != -1 && stopUp)
 {

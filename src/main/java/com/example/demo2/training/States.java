@@ -16,6 +16,8 @@ public class States {
                     new Start(),
 
                     new Sensors(15, 15, States.USE_FRONT_SHARP, 0, SmoothEnum.OFF),
+                    new Sensors(0, 15, States.USE_RIGHT_SONIC, 0, SmoothEnum.OFF),
+                    new Sensors(15, 15, States.USE_RIGHT_SONIC, 0, SmoothEnum.OFF),
 
 //                    new Odometry(States.ABSOLUTE_ODOMETRY, 4000, 0, 45, SmoothEnum.OFF),
 

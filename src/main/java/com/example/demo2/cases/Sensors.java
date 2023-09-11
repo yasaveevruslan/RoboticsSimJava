@@ -103,7 +103,7 @@ public class Sensors implements IState
         }
         else
         {
-            train.setAxisSpeed(speedX * 0.7f, speedY * 0.7f, speedZ * 0.7f);
+            train.setAxisSpeed(speedX, speedY, speedZ);
         }
 
         return finish;

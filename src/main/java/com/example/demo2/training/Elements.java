@@ -141,11 +141,11 @@ public class Elements
         frontierX = 105;
         frontierY = 105;
 
-        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
-        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
+//        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
+//        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
 
-//        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
-//        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
+        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
+        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
     }
 
     /*

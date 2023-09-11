@@ -780,7 +780,7 @@ public class MainController {
                 {
                     if (mas[i][j] == 1)
                     {
-                        limitLeft = j;
+                        limitLeft = j + 45;
                         calculateLeft = 0;
                     }
                     else
@@ -821,7 +821,7 @@ public class MainController {
                     if (mas[i][j] == 1)
                     {
 
-                        limitRight = j;
+                        limitRight = j + 45;
 
                         if (distanceRight > calculateRight)
                         {
@@ -880,7 +880,7 @@ public class MainController {
                 {
                     if (mas[j][i] == 1)
                     {
-                        limitUp = j;
+                        limitUp = j + 70;
                         calculateUp = 0;
                     }
                     else
@@ -919,7 +919,7 @@ public class MainController {
                     }
                     if (mas[j][i] == 1)
                     {
-                        limitDown = j;
+                        limitDown = j + 70;
 
                         if (distanceDown > calculateDown)
                         {
