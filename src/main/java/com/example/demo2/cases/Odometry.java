@@ -157,7 +157,6 @@ public class Odometry implements IState{
         float speedZ = Function.TransF(speedZfunc, nowZ) * acc;
 
 
-
         if (stopX && stopY && stopZ)
         {
             element.setAxisSpeed(0, 0, 0);

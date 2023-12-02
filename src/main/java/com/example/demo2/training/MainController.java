@@ -1,6 +1,8 @@
 package com.example.demo2.training;
 
 import com.example.demo2.StartApplication;
+import com.example.demo2.connection.ConnectionHelper;
+import com.example.demo2.logic.InitLogic;
 import javafx.animation.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -86,11 +88,15 @@ public class MainController {
     private List<String> variablesList = new ArrayList<>();
     private List<Boolean> booleanList = new ArrayList<>();
 
-    private float posX = 290, posY = 290, posZ = 0;
+    private float posX = 680, posY = 100, posZ = 0;
 
     public static int[][] Array2DCort, Array2DRobot, Array2DContour, Array2DContourSecond;
 
     public StateMachine sm = new StateMachine();
+
+    public static float irFront, irBack, usFront, usRight;
+
+    private ConnectionHelper connectionHelper = new ConnectionHelper();
 
 
     private void initTimelineForSmartBoard(){
@@ -109,6 +115,8 @@ public class MainController {
         Timeline updateCort = new Timeline(new KeyFrame(Duration.millis(200), e -> initCort()));
         updateCort.setCycleCount(Animation.INDEFINITE);
         updateCort.play();
+
+        connectionHelper.startChannels();
     }
     public MainController()
     {
@@ -207,12 +215,13 @@ public class MainController {
             createTextView("posX", Elements.coordinatesX);
             createTextView("posY", Elements.coordinatesY);
             createTextView("posZ", Elements.coordinatesZ);
-            createTextView("index", StateMachine.currentindex);
+            createTextView("index", StateMachine.currentIndex);
+            createTextView("array", StateMachine.currentArray);
 
-            createTextView("IR_Front", Elements.irFront);
-            createTextView("IR_Back", Elements.irBack);
-            createTextView("US_Front", Elements.usFront);
-            createTextView("US_Right", Elements.usRight);
+            createTextView("IR_Front", irFront);
+            createTextView("IR_Back", irBack);
+            createTextView("US_Front", usFront);
+            createTextView("US_Right", usRight);
 
             createBooleanView("posC");
             createBooleanView("posG");
@@ -479,12 +488,13 @@ public class MainController {
         variablesList.add(String.format("%.04f", Elements.coordinatesX));
         variablesList.add(String.format("%.04f", Elements.coordinatesY));
         variablesList.add(String.format("%.04f", Elements.coordinatesZ));
-        variablesList.add(String.valueOf(StateMachine.currentindex));
+        variablesList.add(String.valueOf(StateMachine.currentIndex));
+        variablesList.add(String.valueOf(StateMachine.currentArray));
 
-        variablesList.add(String.format("%.04f", Elements.irFront));
-        variablesList.add(String.format("%.04f", Elements.irBack));
-        variablesList.add(String.format("%.04f", Elements.usFront));
-        variablesList.add(String.format("%.04f", Elements.usRight));
+        variablesList.add(String.format("%.04f", irFront));
+        variablesList.add(String.format("%.04f", irBack));
+        variablesList.add(String.format("%.04f", usFront));
+        variablesList.add(String.format("%.04f", usRight));
 
         for (int i = 0; i < views.size(); i++) {
             for (Node node : views.get(i).getChildren()) {
@@ -516,18 +526,17 @@ public class MainController {
         }
         variablesList.clear();
     }
-
     private void updateRobot()
     {
         initRobotElements();
 
         if (resetClicked)
         {
-            posX = 290;
-            posY = 290;
+            posX = 680;
+            posY = 100;
             posZ = 0;
-            Elements.positionRobotX = 290;
-            Elements.positionRobotY = 290;
+            Elements.positionRobotX = 680;
+            Elements.positionRobotY = 100;
             Elements.positionRobotZ = 0;
         }
         else
@@ -535,6 +544,17 @@ public class MainController {
             posX = Elements.positionRobotX;
             posY = Elements.positionRobotY;
             posZ = Elements.positionRobotZ;
+        }
+
+        List<Float> lst = new ArrayList<Float>(Arrays.asList(posX, posY, posZ, usFront, usRight, irFront, irBack,
+                (float)(startClicked ? 1 : 0), (float)(resetClicked ? 1 : 0), (float)(stopClicked ? 1 : 0)));
+        connectionHelper.setData(lst);
+
+        List<Float> speeds = connectionHelper.getData();
+        if (speeds.size() == ConnectionHelper.MAX_DATA_RECEIVE){
+            Elements.speedX = speeds.get(0);
+            Elements.speedY = speeds.get(1);
+            Elements.speedZ = speeds.get(2);
         }
     }
 

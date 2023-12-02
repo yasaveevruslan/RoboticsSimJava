@@ -3,18 +3,18 @@ package com.example.demo2.training;
 public class Elements
 {
 
-    private static float speedX, speedY, speedZ = 0;
+    public static float speedX, speedY, speedZ = 0;
 
     public static float coordinatesX, coordinatesY, coordinatesZ = 0;
 
-    public static float positionRobotX = 290, positionRobotY = 290, positionRobotZ = 0;
+    public static float positionRobotX = 680, positionRobotY = 100, positionRobotZ = 0;
 
     public static int fronteirLeft = 45, fronteirRight = 1043, fronteirUp = 70, fronteirDown = 570;
 
     public static int limitLeft = 45, limitRight = 1043, limitUp = 70, limitDown = 570;
     public static float distanceLeft, distanceRight, distanceUp, distanceDown;
 
-    public static float irFront, irBack, usFront, usRight;
+
 
     public static int frontierX = 0, frontierY = 0;
 
@@ -26,6 +26,7 @@ public class Elements
     */
     public void setAxisSpeed(float x, float y, float z)
     {
+
         if (MainController.stopClicked || MainController.resetClicked)
         {
             speedX = 0;
@@ -58,21 +59,18 @@ public class Elements
     */
     public void CalculateSensors()
     {
-        irFront = (calculatePositionSensors(0) * 4) / 10;
-        irBack = (calculatePositionSensors(0) * 4) / 10;
-        usFront = (calculatePositionSensors(1) * 4) / 10;
-        usRight = (calculatePositionSensors(2) * 4) / 10;
-
-        System.out.println(limitUp + " " + limitDown + " " + limitLeft + " " + limitRight);
-
+        MainController.irFront = (calculatePositionSensors(0) * 4) / 10;
+        MainController.irBack = (calculatePositionSensors(0) * 4) / 10;
+        MainController.usFront = (calculatePositionSensors(1) * 4) / 10;
+        MainController.usRight = (calculatePositionSensors(2) * 4) / 10;
     }
 
     public static float calculatePositionSensors(int element)
     {
 
         int position = 0;
-
         float distance = 0;
+
         if  (   Function.InRangeBool(positionRobotZ, -45, 45) ||
                 Function.InRangeBool(positionRobotZ, 315, 405) ||
                 Function.InRangeBool(positionRobotZ, -405, -315)
@@ -129,6 +127,11 @@ public class Elements
         coordinatesZ = z;
     }
 
+    public void resetGyro(float z)
+    {
+        coordinatesZ = z;
+    }
+
     /*
     выделение контуров
     создание барьера поля
@@ -141,11 +144,11 @@ public class Elements
         frontierX = 105;
         frontierY = 105;
 
-//        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
-//        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
+        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
+        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
 
-        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
-        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
+//        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
+//        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
     }
 
     /*

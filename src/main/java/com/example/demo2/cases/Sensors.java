@@ -86,15 +86,6 @@ public class Sensors implements IState
         mbY = Function.InRangeBool(newY, -0.7f, 0.7f);
         mbZ = Function.InRangeBool(newZ, -0.5f, 0.5f);
 
-        // if (stopX && stopY && stopZ && !this.smooth)
-        // {
-        //     train.setAxisSpeed(0, 0, 0, false);
-        // }
-        // else
-        // {
-        //     train.setAxisSpeed(speedX, speedY, speedZ, this.smooth);
-        // }
-
         boolean finish = end(stopX && stopY && stopZ, this.smooth);
 
         if(finish && !this.smooth)
@@ -107,14 +98,14 @@ public class Sensors implements IState
         }
 
         return finish;
-        // return end(stopX && stopY && stopZ, this.smooth);
+
     }
 
     private float axisX()
     {
         if (this.x > 0)
         {
-            return Elements.usFront - this.x;
+            return MainController.usFront - this.x;
         }
         else
         {
@@ -130,15 +121,15 @@ public class Sensors implements IState
         }
         else if (this.element.equals(States.USE_FRONT_SHARP))
         {
-            return Math.abs(this.y) - Elements.irFront;
+            return Math.abs(this.y) - MainController.irFront;
         }
         else if(this.element.equals(States.USE_BACK_SHARP))
         {
-            return Math.abs(this.y) - Elements.irBack;
+            return Math.abs(this.y) - MainController.irBack;
         }
         else if (this.element.equals(States.USE_RIGHT_SONIC))
         {
-            return Elements.usRight - this.y;
+            return MainController.usRight - this.y;
         }
         else
         {
@@ -152,10 +143,10 @@ public class Sensors implements IState
         float dicZ = 0;
         if (this.z == 1)
         {
-            if ((Elements.irFront + Elements.irBack) / 2 < 25)
+            if ((MainController.irFront + MainController.irBack) / 2 < 25)
             {
                 this.zTransFunction = this.functionSpeedZ;
-                dicZ = Elements.irBack - Elements.irFront;
+                dicZ = MainController.irBack - MainController.irFront;
             }
             else
             {
