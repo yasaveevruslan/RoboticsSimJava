@@ -55,7 +55,7 @@
             </ImageView>
         </left>
     </BorderPane>
-   <ImageView fx:id="imageRobot" fitHeight="105.0" fitWidth="105.0" layoutX="680.0" layoutY="100.0" pickOnBounds="true" preserveRatio="true">
+   <ImageView fx:id="imageRobot" fitHeight="105.0" fitWidth="105.0" layoutX="290.0" layoutY="290.0" pickOnBounds="true" preserveRatio="true">
 
    </ImageView>
     <StackPane fx:id="StackActivityPanel" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="736.0" prefWidth="407.0" AnchorPane.bottomAnchor="64.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

@@ -25,13 +25,13 @@ import java.awt.image.BufferedImage;
 
 
 public class StartApplication extends Application {
-    private final URL PATH_AREA = getClass().getResource("/com/example/demo2/paint.png");
+    private final URL PATH_AREA = getClass().getResource("/com/example/demo2/поле№3симулятор.png");
 //    private final URL PATH_ROBOT = getClass().getResource("/com/example/demo2/none.png");
-    private final URL PATH_ROBOT = getClass().getResource("/com/example/demo2/robot.png");
+    private final URL PATH_ROBOT = getClass().getResource("/com/example/demo2/RobotWithSensors.png");
 
     public static Mat sourceImage;
 
-    public static final URL url = StartApplication.class.getResource("/com/example/demo2/paint.png");
+    public static final URL url = StartApplication.class.getResource("/com/example/demo2/поле№3симулятор.png");
     public static BufferedImage imgCort = null;
     public static BufferedImage imgRobot = null;
 

@@ -1,5 +1,7 @@
 package com.example.demo2.training;
 
+import org.opencv.core.Mat;
+
 public class Elements
 {
 
@@ -7,12 +9,14 @@ public class Elements
 
     public static float coordinatesX, coordinatesY, coordinatesZ = 0;
 
-    public static float positionRobotX = 680, positionRobotY = 100, positionRobotZ = 0;
+    public static float positionRobotX = 290, positionRobotY = 290, positionRobotZ = 0;
 
-    public static int fronteirLeft = 45, fronteirRight = 1043, fronteirUp = 70, fronteirDown = 570;
+    public static int frontierLeft = 45, frontierRight = 1043, frontierUp = 70, frontierDown = 570;
 
     public static int limitLeft = 45, limitRight = 1043, limitUp = 70, limitDown = 570;
     public static float distanceLeft, distanceRight, distanceUp, distanceDown;
+
+    public static float lastPositionX = 0, lastPositionY = 0;
 
 
 
@@ -26,6 +30,11 @@ public class Elements
     */
     public void setAxisSpeed(float x, float y, float z)
     {
+        float theta = (float)(Math.atan2(y, x) + Math.toRadians(positionRobotZ));
+        float r = (float)(Math.sqrt(x * x + y * y));
+
+        float newSpeedX = (float)(r * Math.cos(theta));
+        float newSpeedY = (float)(r * Math.sin(theta));
 
         if (MainController.stopClicked || MainController.resetClicked)
         {
@@ -35,8 +44,8 @@ public class Elements
         }
         else
         {
-            speedX = x / 16;
-            speedY = y / 16;
+            speedX = newSpeedX / 16;
+            speedY = newSpeedY / 16;
             speedZ = z / 16;
         }
 
@@ -55,69 +64,6 @@ public class Elements
     }
 
     /*
-    подсчет значений с датчиков
-    */
-    public void CalculateSensors()
-    {
-        MainController.irFront = (calculatePositionSensors(0) * 4) / 10;
-        MainController.irBack = (calculatePositionSensors(0) * 4) / 10;
-        MainController.usFront = (calculatePositionSensors(1) * 4) / 10;
-        MainController.usRight = (calculatePositionSensors(2) * 4) / 10;
-    }
-
-    public static float calculatePositionSensors(int element)
-    {
-
-        int position = 0;
-        float distance = 0;
-
-        if  (   Function.InRangeBool(positionRobotZ, -45, 45) ||
-                Function.InRangeBool(positionRobotZ, 315, 405) ||
-                Function.InRangeBool(positionRobotZ, -405, -315)
-            )
-        {
-            position = 0;
-        }
-        else if (   Function.InRangeBool(positionRobotZ, 45, 135) ||
-                    Function.InRangeBool(positionRobotZ, -315, -225)
-                )
-        {
-            position = 1;
-        }
-        else if (   Function.InRangeBool(positionRobotZ, 135, 225) ||
-                    Function.InRangeBool(positionRobotZ, -225, -135)
-                )
-        {
-            position = 2;
-        }
-        else if (   Function.InRangeBool(positionRobotZ, 225, 315) ||
-                    Function.InRangeBool(positionRobotZ, -135, -45)
-                )
-        {
-            position = 3;
-        }
-
-
-
-        if ((position + element) == 0 || (position + element) == 4)
-        {
-            distance = distanceUp;
-        }
-        else if ((position + element) == 1 || (position + element) == 5)
-        {
-            distance = distanceRight;
-        } else if ((position + element) == 2 || (position + element) == 6)
-        {
-            distance = distanceDown;
-        }
-        else if ((position + element) == 3)
-        {
-            distance = distanceLeft;
-        }
-        return distance;
-    }
-
-    /*
     сброс координат
     */
     public void resetCoordinates(float x, float y, float z)
@@ -125,6 +71,7 @@ public class Elements
         coordinatesX = x;
         coordinatesY = y;
         coordinatesZ = z;
+
     }
 
     public void resetGyro(float z)
@@ -144,11 +91,14 @@ public class Elements
         frontierX = 105;
         frontierY = 105;
 
-        positionRobotX = setPosition(positionRobotX, fronteirLeft, fronteirRight - frontierX, speedX);
-        positionRobotY = setPosition(positionRobotY, fronteirUp, fronteirDown - frontierY, speedY);
+        positionRobotX = setPosition(positionRobotX, frontierLeft, frontierRight - frontierX, speedX);
+        positionRobotY = setPosition(positionRobotY, frontierUp, frontierDown - frontierY, speedY);
 
 //        positionRobotX = setPosition(positionRobotX, limitLeft, limitRight - frontierX, speedX);
 //        positionRobotY = setPosition(positionRobotY, limitUp, limitDown - frontierY, speedY);
+
+//        System.out.println(frontierLeft + " " + frontierRight + " " + frontierUp + " " + frontierDown);
+
     }
 
     /*

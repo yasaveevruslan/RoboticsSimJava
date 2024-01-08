@@ -1,7 +1,6 @@
 package com.example.demo2.training;
 
 import com.example.demo2.StartApplication;
-import com.example.demo2.connection.ConnectionHelper;
 import com.example.demo2.logic.InitLogic;
 import javafx.animation.*;
 import javafx.embed.swing.SwingFXUtils;
@@ -88,15 +87,15 @@ public class MainController {
     private List<String> variablesList = new ArrayList<>();
     private List<Boolean> booleanList = new ArrayList<>();
 
-    private float posX = 680, posY = 100, posZ = 0;
+    private float posX = 290, posY = 290, posZ = 0;
 
-    public static int[][] Array2DCort, Array2DRobot, Array2DContour, Array2DContourSecond;
+    public static int[][] Array2DCort, Array2DRobot;
 
     public StateMachine sm = new StateMachine();
 
     public static float irFront, irBack, usFront, usRight;
 
-    private ConnectionHelper connectionHelper = new ConnectionHelper();
+//    private ConnectionHelper connectionHelper = new ConnectionHelper();
 
 
     private void initTimelineForSmartBoard(){
@@ -112,11 +111,9 @@ public class MainController {
         updateTimeRobot.setCycleCount(Animation.INDEFINITE);
         updateTimeRobot.play();
 
-        Timeline updateCort = new Timeline(new KeyFrame(Duration.millis(200), e -> initCort()));
-        updateCort.setCycleCount(Animation.INDEFINITE);
-        updateCort.play();
-
-        connectionHelper.startChannels();
+        Timeline updateCreateImage = new Timeline(new KeyFrame(Duration.millis(200), e -> initCort()));
+        updateCreateImage.setCycleCount(Animation.INDEFINITE);
+        updateCreateImage.play();
     }
     public MainController()
     {
@@ -259,7 +256,6 @@ public class MainController {
     @FXML
     private void actionWithImageContours(){
 
-//        ImageView img = new ImageView();
         ImageView img = new ImageView();
 
         if(buttonSmartClicked){
@@ -280,23 +276,19 @@ public class MainController {
             newPanel.getChildren().clear();
 
             repaintImageBorders((processedImage) -> {
-//                Image image = new Image(processedImage);
-//                img.setImage(image);
-//                img.setBlendMode(BlendMode.DIFFERENCE);
-//                img.setFitWidth(600);
-//                img.setFitHeight(400);
-                Image image = new Image("D:\\SimJava\\newVersion\\RoboticsSimJava\\cort.png");
+
+                Image image = new Image("D:\\SimJava\\RoboticsSimJava\\cortPaint.png");
                 img.setImage(image);
                 img.setBlendMode(BlendMode.DIFFERENCE);
-                img.setFitWidth(998 * 0.6);
-                img.setFitHeight(500 * 0.6);
+                img.setFitWidth((998+110) * 0.4);
+                img.setFitHeight((500+110) * 0.4);
             });
 
 
 
-            AnchorPane.setTopAnchor(img, 50.0);
-            AnchorPane.setLeftAnchor(img, 50.0);
-            AnchorPane.setRightAnchor(img, 140.0);
+            AnchorPane.setTopAnchor(img, 25.0);
+            AnchorPane.setLeftAnchor(img, 25.0);
+            AnchorPane.setRightAnchor(img, 25.0);
             newPanel.getChildren().add(img);
             Scroll.setOnKeyPressed(this::handleKeyPressed);
 
@@ -532,11 +524,11 @@ public class MainController {
 
         if (resetClicked)
         {
-            posX = 680;
-            posY = 100;
+            posX = 290;
+            posY = 290;
             posZ = 0;
-            Elements.positionRobotX = 680;
-            Elements.positionRobotY = 100;
+            Elements.positionRobotX = 290;
+            Elements.positionRobotY = 290;
             Elements.positionRobotZ = 0;
         }
         else
@@ -545,28 +537,16 @@ public class MainController {
             posY = Elements.positionRobotY;
             posZ = Elements.positionRobotZ;
         }
-
-        List<Float> lst = new ArrayList<Float>(Arrays.asList(posX, posY, posZ, usFront, usRight, irFront, irBack,
-                (float)(startClicked ? 1 : 0), (float)(resetClicked ? 1 : 0), (float)(stopClicked ? 1 : 0)));
-        connectionHelper.setData(lst);
-
-        List<Float> speeds = connectionHelper.getData();
-        if (speeds.size() == ConnectionHelper.MAX_DATA_RECEIVE){
-            Elements.speedX = speeds.get(0);
-            Elements.speedY = speeds.get(1);
-            Elements.speedZ = speeds.get(2);
-        }
     }
 
     private void initRobotElements()
     {
         new RobotContainer();
         RobotContainer.el.CalculateCoordinates();
-        RobotContainer.el.CalculateSensors();
+//        RobotContainer.el.CalculateSensors();
         RobotContainer.el.changePosition();
         StateMachine.time += 0.05;
         sm.Update();
-
         if (resetClicked)
         {
             sm.resetStateMachine();
@@ -577,66 +557,49 @@ public class MainController {
     {
         try
         {
-            generation2DArrays();
+            generations2DArrays();
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
-
     }
 
-    /*
-        Инициализация работы с симуляцией и генерацией поля
-    */
-    public void generation2DArrays() throws IOException
-    {
-
+    private void generations2DArrays() throws IOException {
         try
         {
-            StartApplication.imgCort = ImageIO.read(new File("src/main/resources/com/example/demo2/paint.png"));
+            StartApplication.imgCort = ImageIO.read(new File("src/main/resources/com/example/demo2/поле№3симулятор.png"));
 
             StartApplication.imgRobot = rotateImageByDegrees(SwingFXUtils.fromFXImage(imageRobot.getImage(), null), posZ);
 
-            File outfile = new File("original.png");
-            ImageIO.write(StartApplication.imgRobot, "png", outfile);
+            ImageIO.write(StartApplication.imgRobot, "png", new File("original.png"));
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
 
+        Array2DCort = new int[StartApplication.imgCort.getHeight()+ 110][StartApplication.imgCort.getWidth() + 110];
         Array2DCort = new int[StartApplication.imgCort.getHeight()][StartApplication.imgCort.getWidth()];
-        Array2DRobot = new int[StartApplication.imgRobot.getHeight()][StartApplication.imgRobot.getWidth()];
 
         assert StartApplication.imgCort != null;
         assert StartApplication.imgRobot != null;
 
-        Array2DCort = get2DPixelArraySlow(StartApplication.imgCort, 1);
-        Array2DRobot = get2DPixelArraySlow(StartApplication.imgRobot, -1);
+        Array2DCort = get2DPixelArraySlow(StartApplication.imgCort, true);
+        Array2DRobot = get2DPixelArraySlow(StartApplication.imgRobot, false);
+
+//        addPixelInTXTDoc(Array2DCort, "CortColor.txt");
+//        addPixelInTXTDoc(Array2DRobot, "RobotColor.txt");
 
         union2DArray(Array2DCort, Array2DRobot);
 
-//        Array2DContour = limitPositionOnX(Array2DCort);
-//        Array2DContourSecond = limitPositionOnY(Array2DCort);
-
-        limitPositionOnX(Array2DCort);
-        limitPositionOnY(Array2DCort);
-
-//        limitPositionOnY(Array2DCort);
-
-        change2DPixelArrayInImage(Array2DCort, "cort.png");
+        change2DPixelArrayInImage(Array2DCort, "cortPaint.png");
         change2DPixelArrayInImage(Array2DRobot, "robotPaint.png");
 
-//        change2DPixelArrayInImage(Array2DContour, "robotContour.png");
-//        change2DPixelArrayInImage(Array2DContourSecond, "robotContourSecond.png");
-
+        generationContours();
     }
 
-    /*
-        Вращение изображения для синхронизации с реальным роботом (BufferedImage)
-    */
-    public BufferedImage rotateImageByDegrees(BufferedImage img, double angle)
+    private BufferedImage rotateImageByDegrees(BufferedImage img, double angle)
     {
 
         double rads = Math.toRadians(angle);
@@ -660,43 +623,99 @@ public class MainController {
         return rotated;
     }
 
-
-    /*
-        получение двумерного массива из изображения (BufferedImage)
-    */
-    public int[][] get2DPixelArraySlow(BufferedImage sampleImage, int mode)
+    private int[][] get2DPixelArraySlow(BufferedImage sampleImage, boolean isCort)
     {
-        int width = sampleImage.getWidth();
-        int height = sampleImage.getHeight();
+        int width = sampleImage.getWidth() + (isCort ? 110 : 0);
+        int height = sampleImage.getHeight() + (isCort ? 110 : 0);
         int[][] result = new int[height][width];
 
-        for (int row = 0; row < height; row++)
+
+        if (isCort)
         {
-            for (int col = 0; col < width; col++)
+            for (int i = 0; i < height; i ++)
             {
-                int color = 9;
-                if (sampleImage.getRGB(col, row) < -1)
+                for (int j = 0; j < width; j++)
                 {
-                    color = 1;
+                    result[i][j] = 3;
                 }
-                else if (sampleImage.getRGB(col, row) >= -1)
+            }
+        }
+
+
+        for (int row = isCort ? 55 : 0; row < (isCort ? height - 55 : height); row++)
+        {
+            for (int col = isCort ? 55 : 0; col < (isCort ? width - 55 : width); col++)
+            {
+
+                int colorMode = 15;
+                int colorPixel = sampleImage.getRGB(isCort ? col - 55 : col, isCort ? row - 55 : row);
+
+                int blue = colorPixel & 0xff;
+                int green = (colorPixel & 0xff00) >> 8;
+                int red = (colorPixel & 0xff0000) >> 16;
+                int alpha = (colorPixel & 0xff000000) >>> 24;
+
+                boolean IsWhite = Function.InRangeBool(blue, 90, 255)
+                        && Function.InRangeBool(green, 90, 255)
+                        && Function.InRangeBool(red, 90, 255)
+                        && Function.InRangeBool(alpha, 100, 255);
+
+                // color red = blue: 20-90; green: 20-90; red: 140-255
+                boolean IsRed = Function.InRangeBool(blue, 0, 90)
+                        && Function.InRangeBool(green, 0, 90)
+                        && Function.InRangeBool(red, 140, 255);
+
+                boolean IsBlack = Function.InRangeBool(blue, 0, 200)
+                        && Function.InRangeBool(green, 0, 200)
+                        && Function.InRangeBool(red, 0, 200);
+
+                if (isCort)
                 {
-                    color = 0;
+                    if (IsBlack)
+                    {
+                        colorMode = 3; // BLACK
+                    }
+                    else
+                    {
+                        colorMode = 0; // WHITE
+                    }
                 }
                 else
                 {
-                    color = -1;
+                    if (alpha <= 200 || IsWhite)
+                    {
+                        colorMode = 0; // WHITE
+                    }
+                    else
+                    {
+                        if (IsRed)
+                        {
+                            colorMode = 1; // RED
+                        }
+                        else
+                        {
+                            colorMode = 2; // BLUE
+                        }
+                    }
                 }
-                result[row][col] = color  * mode;
+                result[row][col] = colorMode;
             }
         }
         return result;
     }
 
-    /*
-        преобразование двумерного массива в картинку с сохранением в файл с именем
-    */
-    public void change2DPixelArrayInImage(int[][] mas, String name) throws IOException
+    private void addPixelInTXTDoc(int[][] mas, String name) throws IOException
+    {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(name)));
+        for (int[] i : mas)
+        {
+            String stuffToWrite = Arrays.toString(i);
+            writer.write(stuffToWrite + '\n');
+        }
+        writer.close();
+    }
+
+    private void change2DPixelArrayInImage(int[][] mas, String name) throws IOException
     {
 
         int h = mas.length;
@@ -704,16 +723,20 @@ public class MainController {
 
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 
-        java.awt.Color color = java.awt.Color.BLUE;
+        java.awt.Color color = java.awt.Color.WHITE;
         for (int row = 0; row < h; row++)
         {
             for (int col = 0; col < w; col++)
             {
-                if (mas[row][col] == -1)
+                if (mas[row][col] == 2)
                 {
                     color = java.awt.Color.BLUE;
                 }
                 else if (mas[row][col] == 1)
+                {
+                    color = java.awt.Color.RED;
+                }
+                else if (mas[row][col] == 3)
                 {
                     color = java.awt.Color.BLACK;
                 }
@@ -730,25 +753,7 @@ public class MainController {
         ImageIO.write(image, "png", outfile);
     }
 
-    /*
-        сохранение массива с указанным именем в текстовый документ
-    */
-    public void addPixelInTXTDoc(int[][] mas, String name) throws IOException
-    {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(name)));
-        for (int[] i : mas)
-        {
-            String stuffToWrite = Arrays.toString(i);
-            writer.write(stuffToWrite + '\n');
-        }
-        writer.close();
-    }
-
-
-    /*
-        объединение массива поля и массива робота в единый массив
-    */
-    public void union2DArray(int[][] firstMas, int[][] secondMas)
+    private void union2DArray(int[][] firstMas, int[][] secondMas)
     {
         int first, second = 0;
 
@@ -756,220 +761,275 @@ public class MainController {
         {
             for (int j = 0; j < secondMas[0].length; j++)
             {
-                first = (int) (Elements.positionRobotY - 70 + i);
-                second = (int) (Elements.positionRobotX - 45 + j);
-
-                /*
-                * добавление массива с роботом под стенки
-                */
-                if (firstMas[first][second] != secondMas[i][j] && firstMas[first][second] != 1)
+                first = ((int)(Elements.positionRobotY) - 70 + i);
+                second = ((int)(Elements.positionRobotX) - 45 + j);
 
                 /*
                  * добавление массива с роботом под стенки
-                 * if (firstMas[first][second] != secondMas[i][j] && secondMas[i][j] == -1)
                  */
-
+//                if (firstMas[first + 55][second + 55] != secondMas[i][j] && firstMas[first + 55][second + 55] != 3)
+//                {
+//                    firstMas[first + 55][second + 55] = secondMas[i][j];
+//                }
+                if (firstMas[first + 55][second + 55] != secondMas[i][j] && (secondMas[i][j] == 1 || secondMas[i][j] == 2))
                 {
-                    firstMas[first][second] = secondMas[i][j];
+                    firstMas[first + 55][second + 55] = secondMas[i][j];
                 }
             }
         }
     }
 
+    private void generationContours() throws IOException {
+        int firstX = (int) (posX - 50), firstY = (int) (posY - 50), firstHeight = 205, firstWidth = 205;
 
-    public void limitPositionOnX(int[][] mas)
-    {
+        float limitUp, limitDown, limitLeft, limitRight;
 
-        float distanceLeft = 9999, distanceRight = 9999;
+        float blackUp, blackDown, blackLeft, blackRight;
 
-        float startPosition = posX - 120 > 0 ?  posX - 120 : 0;
-        float endPosition = posX + 180 < 998 ? posX + 180 : 998;
+        boolean isUp, isDown, isLeft, isRight;
 
-        float minBlue = 9999, maxBlue = 0;
+//        for (int i = firstX; i < firstWidth; i ++)
+//        {
+//            for (int j = firstY; j < firstHeight; j ++)
+//            {
+//
+//            }
+//        }
 
-        int limitLeft = 45, limitRight = 1043;
+//        limitLeft = leftContour();
+//        System.out.println(limitLeft);
 
-        for (int i = (int) posY - 70; i < (int) posY + 35; i ++)
-        {
-            boolean stopLeft = true, stopRight = true;
-            int calculateLeft = 0, calculateRight = 0;
+//        int[][] masRight = rightContour();
+//        int[][] masUp = upContour();
+//        int[][] masDown = downContour();
 
-            for (int j = (int) startPosition; j < endPosition; j ++)
-            {
-                if (!stopLeft)
-                {
-                    if (mas[i][j] == 1)
-                    {
-                        limitLeft = j + 45;
-                        calculateLeft = 0;
-                    }
-                    else
-                    {
-                        calculateLeft ++;
-                    }
+        int[][] generationImageContour = generationImageContour();
+        int[][] masLeft = leftContour(generationImageContour);
 
-                    if (mas[i][j] == -1)
-                    {
-
-                        if (distanceLeft > calculateLeft)
-                        {
-                            distanceLeft = calculateLeft;
-                            stopLeft = true;
-                        }
-                    }
-                }
-                else
-                {
-                    if (mas[i][j] == 1)
-                    {
-                        stopLeft = false;
-                    }
-                }
-
-
-                if (!stopRight)
-                {
-                    if (mas[i][j] == -1)
-                    {
-                        calculateRight = 0;
-                    }
-                    else
-                    {
-                        calculateRight ++;
-                    }
-
-                    if (mas[i][j] == 1)
-                    {
-
-                        limitRight = j + 45;
-
-                        if (distanceRight > calculateRight)
-                        {
-                            distanceRight = calculateRight;
-                            stopRight = true;
-                        }
-                    }
-                }
-                else
-                {
-                    if (mas[i][j] == -1)
-                    {
-                        stopRight = false;
-                    }
-                }
-
-                if (mas[i][j] == -1)
-                {
-                    maxBlue = j > maxBlue ? j : maxBlue;
-                    minBlue = j < minBlue ? j : minBlue;
-                }
-            }
-
-        }
-
-        Elements.distanceLeft = distanceLeft == 9999 ? minBlue : distanceLeft;
-        Elements.distanceRight = distanceRight == 9999 ? 998 - maxBlue : distanceRight;
-
-        Elements.limitLeft = limitLeft;
-        Elements.limitRight = limitRight;
+        change2DPixelArrayInImage(generationImageContour, "generationImageContour.png");
+        change2DPixelArrayInImage(masLeft, "LeftContour.png");
+//        change2DPixelArrayInImage(masRight, "RightContour.png");
+//        change2DPixelArrayInImage(masUp, "UpContour.png");
+//        change2DPixelArrayInImage(masDown, "DownContour.png");
     }
 
-
-    public void limitPositionOnY(int[][] mas)
+    private void divisionInto4Zones()
     {
+        float firstX, firstY, firstHeight = 100, firstWidth = 100;
+        float secondX, secondY, secondHeight = 100, secondWidth = 100;
+        float thirdX, thirdY, thirdHeight = 100, thirdWidth = 100;
+        float fourthX, fourthY, fourthHeight = 100, fourthWidth = 100;
+    }
 
-        float distanceUp = 9999, distanceDown = 9999;
+//    private int[][] leftContour()
+//    {
+//        float limitLeft = 999999;
+//        float thisLimitLeft;
+//
+//        int startX = (int) (posX - 40), endX = (int) (posX + 60), startY = (int) (posY - 65), endY = (int) (posY + 140);
+//
+//        int[][] mas = new int[300][300];
+//        for (int y = startY; y < endY; y ++)
+//        {
+//
+//            float blackPosition = 45;
+//            for (int x = startX; x < endX; x ++)
+//            {
+//                mas[y - startY][x - startX] = Array2DCort[y][x];
+//
+//                if (Array2DCort[y][x] == 3)
+//                {
+//                    blackPosition = x;
+//                }
+//
+//                if (Array2DCort[y][x] == 1 || Array2DCort[y][x] == 2)
+//                {
+//                    thisLimitLeft = blackPosition;
+//                    if (thisLimitLeft < limitLeft)
+//                    {
+//                        limitLeft = thisLimitLeft;
+//                    }
+//                    break;
+//                }
+//
+//            }
+//
+//        }
+//        Elements.frontierLeft = (int) limitLeft;
+//        return mas;
+//    }
 
-        float startPosition = posY - 140 > 0 ?  posY - 140 : 0;
-        float endPosition = posY + 160 < 500 ? posY + 160 : 500;
+    private int[][] rightContour()
+    {
+        float limitRight = 1043;
+        boolean robotOut = true;
 
-        float minBlue = 9999, maxBlue = 0;
+        int startX = (int) (posX + 60), endX = (int) (posX + 165), startY = (int) (posY - 65), endY = (int) (posY + 140);
 
-        int limitUp = 70, limitDown = 570;
-
-        for (int i = (int) (posX - 45); i < (int)(posX + 60); i ++)
+        int[][] mas = new int[300][300];
+        for (int y = startY; y < endY; y ++)
         {
 
-            boolean stopUp = true, stopDown = true;
-            int calculateUp = 0, calculateDown = 0;
-
-            for (int j = (int) startPosition; j < endPosition; j ++)
+            float blackPosition = 1043;
+            for (int x = startX; x < endX; x ++)
             {
+                mas[y - startY][x - startX] = Array2DCort[y][x];
 
-                if (!stopUp)
+                if (Array2DCort[y][x] == 1 || Array2DCort[y][x] == 2)
                 {
-                    if (mas[j][i] == 1)
-                    {
-                        limitUp = j + 70;
-                        calculateUp = 0;
-                    }
-                    else
-                    {
-                        calculateUp ++;
-                    }
+                    robotOut = false;
+                }
 
-                    if (mas[j][i] == -1)
-                    {
 
-                        if (distanceUp > calculateUp)
+                if (Array2DCort[y][x] == 3)
+                {
+                    if (!robotOut)
+                    {
+                        blackPosition = x;
+                        if (blackPosition < limitRight)
                         {
-                            distanceUp = calculateUp;
-                            stopUp = true;
+                            limitRight = blackPosition;
                         }
-                    }
-
-                }
-                else
-                {
-                    if (mas[j][i] == 1)
-                    {
-                        stopUp = false;
+                        break;
                     }
                 }
+            }
 
-                if (!stopDown)
+        }
+        Elements.frontierRight = (int) limitRight;
+        return mas;
+    }
+
+    private int[][] upContour()
+    {
+        float limitUp = 999999;
+        float thisLimitUp;
+
+        int startX = (int) (posX - 40), endX = (int) (posX + 165), startY = (int) (posY - 65), endY = (int) (posY + 35);
+
+        int[][] mas = new int[300][300];
+        for (int x = startX; x < endX; x ++)
+        {
+
+            float blackPosition = 70;
+            for (int y = startY; y < endY; y ++)
+            {
+                mas[y - startY][x - startX] = Array2DCort[y][x];
+
+                if (Array2DCort[y][x] == 3)
                 {
-                    if (mas[j][i] == -1)
-                    {
-                        calculateDown = 0;
-                    }
-                    else
-                    {
-                        calculateDown ++;
-                    }
-                    if (mas[j][i] == 1)
-                    {
-                        limitDown = j + 70;
+                    blackPosition = x;
+                }
 
-                        if (distanceDown > calculateDown)
+                if (Array2DCort[y][x] == 1 || Array2DCort[y][x] == 2)
+                {
+                    thisLimitUp = blackPosition;
+                    if (thisLimitUp < limitUp)
+                    {
+                        limitUp = thisLimitUp;
+                    }
+                    break;
+                }
+
+            }
+
+        }
+        Elements.frontierUp = (int)(limitUp);
+        return mas;
+    }
+
+    private int[][] downContour()
+    {
+        float limitDown = 570;
+        boolean robotOut = true;
+
+        int startX = (int) (posX - 40), endX = (int) (posX + 165), startY = (int) (posY + 35), endY = (int) (posY + 140);
+
+        int[][] mas = new int[300][300];
+        for (int x = startX; x < endX; x ++)
+        {
+
+            float blackPosition = 570;
+            for (int y = startY; y < endY; y ++)
+            {
+                mas[y - startY][x - startX] = Array2DCort[y][x];
+
+                if (Array2DCort[y][x] == 1 || Array2DCort[y][x] == 2)
+                {
+                    robotOut = false;
+                }
+
+                if (Array2DCort[y][x] == 3)
+                {
+                    if (!robotOut)
+                    {
+                        blackPosition = x;
+                        if (blackPosition < limitDown)
                         {
-                            distanceDown = calculateDown;
-                            stopDown = true;
+                            limitDown = blackPosition;
                         }
+                        break;
                     }
-
                 }
-                else
+            }
+
+        }
+        Elements.frontierDown = (int)(limitDown);
+        return mas;
+    }
+
+    private int[][] generationImageContour()
+    {
+        int[][] mas = new int[205][205];
+        int first, second = 0;
+
+        first = ((int)(Elements.positionRobotY) - 70);
+        second = ((int)(Elements.positionRobotX) - 45);
+
+        for (int i = 0; i < mas.length; i++)
+        {
+            for (int j = 0; j < mas[0].length; j++)
+            {
+                mas[i][j] = Array2DCort[first+i][second+j];
+            }
+        }
+        return mas;
+    }
+
+    private int[][] leftContour(int[][] mas)
+    {
+        int first, second = 0;
+        int[][] masLeft = new int[205][205];
+        first = ((int)(Elements.positionRobotY) - 70);
+        second = ((int)(Elements.positionRobotX) - 45);
+
+        int positionBlack = 0;
+        int thisLimitLeft, limitLeft = 9999;
+
+        for (int i = 0; i < mas.length; i++)
+        {
+            for (int j = 0; j < mas[0].length; j++)
+            {
+                masLeft[i][j] = Array2DCort[first+i][second+j];
+
+                if (Array2DCort[first+i][second+j] == 3)
                 {
-                    if (mas[j][i] == -1)
+                    positionBlack = second+j;
+                }
+
+                if (Array2DCort[first+i][second+j] == 1 || Array2DCort[first+i][second+j] == 2)
+                {
+                    thisLimitLeft = positionBlack;
+                    if (thisLimitLeft < limitLeft)
                     {
-                        stopDown = false;
+                        limitLeft = thisLimitLeft;
                     }
-                }
-
-                if (mas[j][i] == -1)
-                {
-                    maxBlue = j > maxBlue ? j : maxBlue;
-                    minBlue = j < minBlue ? j : minBlue;
+                    break;
                 }
             }
         }
-
-        Elements.distanceUp = distanceUp == 9999 ? minBlue : distanceUp;
-        Elements.distanceDown = distanceDown == 9999 ? 500 - maxBlue : distanceDown;
-
-        Elements.limitUp = limitUp;
-        Elements.limitDown = limitDown;
-
+        Elements.frontierLeft = limitLeft;
+//        System.out.println(limitLeft);
+        return masLeft;
     }
 }

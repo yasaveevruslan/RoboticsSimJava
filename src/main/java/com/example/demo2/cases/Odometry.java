@@ -150,7 +150,7 @@ public class Odometry implements IState{
         }
 
         float r = Function.TransF(speedXandYfunc, (float) Math.sqrt(nowX * nowX + nowY * nowY));
-        float theta = (float) (Math.atan2(nowY, nowX));
+        float theta = (float) (Math.atan2(nowY, nowX) - Math.toRadians(Elements.coordinatesZ));
 
         float speedX = (float)(r * Math.cos(theta)) * acc;
         float speedY = (float)(r * Math.sin(theta)) * acc;
